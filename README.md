@@ -1,0 +1,2 @@
+silex-cors-provider
+===================
