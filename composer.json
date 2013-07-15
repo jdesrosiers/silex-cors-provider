@@ -1,0 +1,25 @@
+{
+    "name": "jdesrosiers/silex-cors-provider",
+    "description": "A silex service provider that adds CORS services to silex",
+    "keywords": ["silex", "cors", "cross", "origin", "resource", "sharing", "service", "provider"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jason Desrosiers",
+            "email": "jdesrosi@gmail.com"
+        }
+    ],
+    "require": {
+        "silex/silex": "~1.0"
+    },
+    "require-dev": {
+        "symfony/browser-kit": "2.3.*",
+        "phpunit/phpunit": "3.7.*"
+    },
+    "autoload": {
+        "psr-0": {
+            "JDesrosiers": "src/"
+        }
+    },
+    "minimum-stability": "stable"
+}
