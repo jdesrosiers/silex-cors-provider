@@ -10,14 +10,32 @@ require_once __DIR__ . "/../../../../../vendor/autoload.php";
 
 class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
 {
-    public function test_()
-    {
-        $app = new Application();
-        $app->register(new CorsServiceProvider(), array());
+    protected $app;
 
-        $client = new Client($app);
-//        $client->request("GET", "");
-//        $response = $client->getResponse();
-//        $this->assertEquals(200, $response->getStatusCode());
+    public function setUp()
+    {
+        $this->app = new Application();
+        $this->app->register(new CorsServiceProvider());
+    }
+
+    public function testOptionsMethod()
+    {
+        $this->app->get("/foo", function () {
+            return "foo";
+        });
+        $this->app->post("/foo", function () {
+            return "foo";
+        });
+        $this->app->flush();
+
+        $client = new Client($this->app);
+        $client->request("OPTIONS", "/foo");
+
+        $response = $client->getResponse();
+
+        $this->assertEquals("204", $response->getStatusCode());
+//        $this->assertFalse($response->headers->has("Content-Type"));
+        $this->assertEquals("GET,POST", $response->headers->get("Allow"));
+        $this->assertEquals("", $response->getContent());
     }
 }
