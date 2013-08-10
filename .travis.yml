@@ -1,0 +1,17 @@
+language: php
+
+env:
+  - SILEX_VERSION="1.0.*"
+  - SILEX_VERSION="1.1.*"
+  - SILEX_VERSION="dev-master"
+
+before_script:
+  - composer require silex/silex:${SILEX_VERSION}
+  - composer install --dev --prefer-source
+
+script: vendor/bin/phpunit
+
+php:
+  - 5.3
+  - 5.4
+  - 5.5
