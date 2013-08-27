@@ -26,7 +26,6 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
         $this->app->post("/foo", function () {
             return "foo";
         });
-        $this->app->flush();
 
         $client = new Client($this->app);
         $client->request("OPTIONS", "/foo");

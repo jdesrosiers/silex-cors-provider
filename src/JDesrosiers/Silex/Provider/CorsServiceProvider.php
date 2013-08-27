@@ -12,6 +12,8 @@ class CorsServiceProvider implements ServiceProviderInterface
     public function boot(Application $app)
     {
         // Add OPTIONS method support for all routes
+        $app->flush();
+
         $allow = array();
         foreach ($app["routes"] as $route) {
             $path = $route->getPath();
