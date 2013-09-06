@@ -13,7 +13,7 @@ Install the silex-cors-provider using [composer](http://getcomposer.org/).  This
 ```json
 {
     "require": {
-        "jdesrosiers/silex-cors-provider": "~0.1"
+        "jdesrosiers/silex-cors-provider": "dev-master"
     }
 }
 ```
