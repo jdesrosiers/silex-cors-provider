@@ -66,7 +66,7 @@ class CorsServiceProvider implements ServiceProviderInterface
                     $response->headers->set("Access-Control-Expose-Headers", $app["cors.exposeHeaders"]);
                 }
 
-                $allowOrigin = is_null($app["cors.allowOrigin"]) ? $response->headers->get("Origin") : $app["cors.allowOrigin"];
+                $allowOrigin = is_null($app["cors.allowOrigin"]) ? $request->headers->get("Origin") : $app["cors.allowOrigin"];
                 $response->headers->set("Access-Control-Allow-Origin", $allowOrigin);
 
                 if ($app["cors.allowCredentials"]) {
