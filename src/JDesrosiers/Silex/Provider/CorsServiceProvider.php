@@ -59,7 +59,7 @@ class CorsServiceProvider implements ServiceProviderInterface
 
                     $response->headers->set("Access-Control-Allow-Methods", $allowMethods);
 
-                    if (isset($app["maxAge"])) {
+                    if (isset($app["cors.maxAge"])) {
                         $response->headers->set("Access-Control-Max-Age", $app["cors.maxAge"]);
                     }
                 } elseif (!is_null($app["cors.exposeHeaders"])) {
