@@ -17,14 +17,21 @@ class CorsServiceProvider implements ServiceProviderInterface
         $allow = array();
         foreach ($app["routes"] as $route) {
             $path = $route->getPath();
-            $allowPath = array_key_exists($path, $allow) ? $allow[$path] : array();
-            $allow[$path] = array_merge($allowPath, $route->getMethods());
+            if (!array_key_exists($path, $allow)) {
+                $allow[$path] = array("methods" => array(), "requirements" => array());
+            }
+            $allow[$path]["methods"] = array_merge($allow[$path]["methods"], $route->getMethods());
+            $allow[$path]["requirements"] = array_merge($allow[$path]["requirements"], $route->getRequirements());
         }
 
-        foreach ($allow as $path => $methods) {
-            $app->match($path, function () use ($methods) {
+        foreach ($allow as $path => $routeDetails) {
+            $methods = $routeDetails["methods"];
+            $controller = $app->match($path, function () use ($methods) {
                 return new Response("", 204, array("Allow" => implode(",", $methods)));
             })->method('OPTIONS');
+
+            unset($routeDetails["requirements"]["_method"]);
+            $controller->setRequirements($routeDetails["requirements"]);
         }
     }
 
