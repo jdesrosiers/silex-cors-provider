@@ -20,7 +20,7 @@ Install the silex-cors-provider using [composer](http://getcomposer.org/).  This
 
 Parameters
 ----------
-* **cors.allowOrigin**: (string) Comma separated set of allowed access.  Defaults to all.
+* **cors.allowOrigin**: (string) Space separated set of allowed access.  Defaults to all.
 * **cors.allowMethods**: (string) Comma separated set of allowed HTTP methods.  Defaults to all.
 * **cors.maxAge**: (int) The number of seconds a CORS pre-flight response can be cached.
 * **cors.allowCredentials**: (boolean)

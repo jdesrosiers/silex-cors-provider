@@ -44,42 +44,42 @@ class CorsServiceProvider implements ServiceProviderInterface
         $app["cors.allowCredentials"] = false;
         $app["cors.exposeHeaders"] = null;
 
-        $app["cors"] = function (Application $app) {
-            return function (Request $request, Response $response) use ($app) {
-                if (!$request->headers->has("Origin")) {
-                    // Not a valid CORS request
+        $app["cors"] = $app->protect(function (Request $request, Response $response) use ($app) {
+            if (!$request->headers->has("Origin")) {
+                // Not a valid CORS request
+                return;
+            }
+
+            if ($request->getMethod() === "OPTIONS" && $request->headers->has("Access-Control-Request-Method")) {
+                $allowMethods = is_null($app["cors.allowMethods"]) ? $response->headers->get("Allow") : $app["cors.allowMethods"];
+
+                if (!in_array($request->headers->get("Access-Control-Request-Method"), preg_split("/\s*,\s*/", $allowMethods))) {
+                    // Not a valid prefight request
                     return;
                 }
 
-                if ($request->getMethod() === "OPTIONS" && $request->headers->has("Access-Control-Request-Method")) {
-                    $allowMethods = is_null($app["cors.allowMethods"]) ? $response->headers->get("Allow") : $app["cors.allowMethods"];
-
-                    if (!in_array($request->headers->get("Access-Control-Request-Method"), preg_split("/\s*,\s*/", $allowMethods))) {
-                        // Not a valid prefight request
-                        return;
-                    }
-
-                    if ($request->headers->has("Access-Control-Request-Headers")) {
-                        // TODO: Allow cors.allowHeaders to be set and use it to validate the request
-                        $response->headers->set("Access-Control-Allow-Headers", $request->headers->get("Access-Control-Request-Headers"));
-                    }
-
-                    $response->headers->set("Access-Control-Allow-Methods", $allowMethods);
-
-                    if (isset($app["cors.maxAge"])) {
-                        $response->headers->set("Access-Control-Max-Age", $app["cors.maxAge"]);
-                    }
-                } elseif (!is_null($app["cors.exposeHeaders"])) {
-                    $response->headers->set("Access-Control-Expose-Headers", $app["cors.exposeHeaders"]);
+                if ($request->headers->has("Access-Control-Request-Headers")) {
+                    // TODO: Allow cors.allowHeaders to be set and use it to validate the request
+                    $response->headers->set("Access-Control-Allow-Headers", $request->headers->get("Access-Control-Request-Headers"));
                 }
 
-                $allowOrigin = is_null($app["cors.allowOrigin"]) ? $request->headers->get("Origin") : $app["cors.allowOrigin"];
-                $response->headers->set("Access-Control-Allow-Origin", $allowOrigin);
+                $response->headers->set("Access-Control-Allow-Methods", $allowMethods);
 
-                if ($app["cors.allowCredentials"]) {
-                    $response->headers->set("Access-Control-Allow-Credentials", "true");
+                if (isset($app["cors.maxAge"])) {
+                    $response->headers->set("Access-Control-Max-Age", $app["cors.maxAge"]);
                 }
-            };
-        };
+            } elseif (!is_null($app["cors.exposeHeaders"])) {
+                $response->headers->set("Access-Control-Expose-Headers", $app["cors.exposeHeaders"]);
+            }
+
+            $origin = $request->headers->get("Origin");
+            $allowedOrigins = is_null($app["cors.allowOrigin"]) ? array($origin) : preg_split('/\s+/', $app["cors.allowOrigin"]);
+            $allowOrigin = in_array($origin, $allowedOrigins) ? $origin : "null";
+            $response->headers->set("Access-Control-Allow-Origin", $allowOrigin);
+
+            if ($app["cors.allowCredentials"]) {
+                $response->headers->set("Access-Control-Allow-Credentials", "true");
+            }
+        });
     }
 }
