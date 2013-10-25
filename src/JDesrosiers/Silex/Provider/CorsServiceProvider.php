@@ -19,8 +19,10 @@ class CorsServiceProvider implements ServiceProviderInterface
      */
     public function boot(Application $app)
     {
+        // This seems to necessary sometimes.  I'm not sure why.
         $app->flush();
 
+        // Accumulate allow data
         $allow = array();
         foreach ($app["routes"] as $route) {
             $path = $route->getPath();
@@ -31,6 +33,7 @@ class CorsServiceProvider implements ServiceProviderInterface
             $allow[$path]["requirements"] = array_merge($allow[$path]["requirements"], $route->getRequirements());
         }
 
+        // Create OPTIONS routes
         foreach ($allow as $path => $routeDetails) {
             $methods = $routeDetails["methods"];
             $controller = $app->match(
@@ -54,7 +57,6 @@ class CorsServiceProvider implements ServiceProviderInterface
     {
         $app["cors.allowOrigin"] = null; // Defaults to all
         $app["cors.allowMethods"] = null; // Defaults to all
-        //$app["cors.allowHeaders"] = "*";
         $app["cors.maxAge"] = null;
         $app["cors.allowCredentials"] = false;
         $app["cors.exposeHeaders"] = null;
@@ -67,10 +69,29 @@ class CorsServiceProvider implements ServiceProviderInterface
                 }
 
                 if ($request->getMethod() === "OPTIONS" && $request->headers->has("Access-Control-Request-Method")) {
-                    if (!$this->preflight($app, $request, $response)) {
-                        return;
+                    // Preflight Request
+                    $allow = $response->headers->get("Allow");
+                    $allowMethods = is_null($app["cors.allowMethods"]) ? $allow : $app["cors.allowMethods"];
+
+                    $requestMethod = $request->headers->get("Access-Control-Request-Method");
+                    if (!in_array($requestMethod, preg_split("/\s*,\s*/", $allowMethods))) {
+                        // Not a valid prefight request
+                        return false;
+                    }
+
+                    if ($request->headers->has("Access-Control-Request-Headers")) {
+                        // TODO: Allow cors.allowHeaders to be set and use it to validate the request
+                        $requestHeaders = $request->headers->get("Access-Control-Request-Headers");
+                        $response->headers->set("Access-Control-Allow-Headers", $requestHeaders);
+                    }
+
+                    $response->headers->set("Access-Control-Allow-Methods", $allowMethods);
+
+                    if (!is_null($app["cors.maxAge"])) {
+                        $response->headers->set("Access-Control-Max-Age", $app["cors.maxAge"]);
                     }
                 } elseif (!is_null($app["cors.exposeHeaders"])) {
+                    // Actual Request
                     $response->headers->set("Access-Control-Expose-Headers", $app["cors.exposeHeaders"]);
                 }
 
@@ -82,36 +103,10 @@ class CorsServiceProvider implements ServiceProviderInterface
                 $allowOrigin = in_array($origin, preg_split('/\s+/', $app["cors.allowOrigin"])) ? $origin : "null";
                 $response->headers->set("Access-Control-Allow-Origin", $allowOrigin);
 
-                if ($app["cors.allowCredentials"]) {
+                if (!is_null($app["cors.allowCredentials"])) {
                     $response->headers->set("Access-Control-Allow-Credentials", "true");
                 }
             }
         );
-    }
-
-    protected function preflight(Application $app, Request $request, Response $response)
-    {
-        $allow = $response->headers->get("Allow");
-        $allowMethods = is_null($app["cors.allowMethods"]) ? $allow : $app["cors.allowMethods"];
-
-        $requestMethod = $request->headers->get("Access-Control-Request-Method");
-        if (!in_array($requestMethod, preg_split("/\s*,\s*/", $allowMethods))) {
-            // Not a valid prefight request
-            return false;
-        }
-
-        if ($request->headers->has("Access-Control-Request-Headers")) {
-            // TODO: Allow cors.allowHeaders to be set and use it to validate the request
-            $requestHeaders = $request->headers->get("Access-Control-Request-Headers");
-            $response->headers->set("Access-Control-Allow-Headers", $requestHeaders);
-        }
-
-        $response->headers->set("Access-Control-Allow-Methods", $allowMethods);
-
-        if (!is_null($app["cors.maxAge"])) {
-            $response->headers->set("Access-Control-Max-Age", $app["cors.maxAge"]);
-        }
-
-        return true;
     }
 }
