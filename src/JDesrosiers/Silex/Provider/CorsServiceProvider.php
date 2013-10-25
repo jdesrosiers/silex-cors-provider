@@ -71,7 +71,7 @@ class CorsServiceProvider implements ServiceProviderInterface
                 if ($request->getMethod() === "OPTIONS" && $request->headers->has("Access-Control-Request-Method")) {
                     // Preflight Request
                     $allow = $response->headers->get("Allow");
-                    $allowMethods = is_null($app["cors.allowMethods"]) ? $allow : $app["cors.allowMethods"];
+                    $allowMethods = !is_null($app["cors.allowMethods"]) ? $app["cors.allowMethods"] : $allow;
 
                     $requestMethod = $request->headers->get("Access-Control-Request-Method");
                     if (!in_array($requestMethod, preg_split("/\s*,\s*/", $allowMethods))) {
