@@ -10,7 +10,7 @@
          syntaxCheck="false"
 >
     <testsuites>
-        <testsuite name="silex-swagger-provider Test Suite">
+        <testsuite name="silex-cors-provider Test Suite">
             <directory>./tests/</directory>
         </testsuite>
     </testsuites>
