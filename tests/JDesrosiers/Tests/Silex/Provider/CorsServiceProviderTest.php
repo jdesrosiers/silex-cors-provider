@@ -256,4 +256,19 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
 //        $this->assertFalse($response->headers->has("Content-Type"));
         $this->assertEquals("", $response->getContent());
     }
+
+    public function testNotEnabledMethod()
+    {
+        $this->app->post("/foo", function () {
+            return "foo";
+        });
+
+        $client = new Client($this->app);
+        $client->request("GET", "/foo");
+
+        $response = $client->getResponse();
+
+        $this->assertEquals("405", $response->getStatusCode());
+        $this->assertEquals("POST, OPTIONS", $response->headers->get("Allow"));
+    }
 }

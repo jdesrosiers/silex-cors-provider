@@ -29,6 +29,7 @@ class CorsServiceProvider implements ServiceProviderInterface
             if (!array_key_exists($path, $allow)) {
                 $allow[$path] = array("methods" => array(), "requirements" => array());
             }
+            
             $allow[$path]["methods"] = array_merge($allow[$path]["methods"], $route->getMethods());
             $allow[$path]["requirements"] = array_merge($allow[$path]["requirements"], $route->getRequirements());
         }
@@ -41,9 +42,9 @@ class CorsServiceProvider implements ServiceProviderInterface
                 function () use ($methods) {
                     return new Response("", 204, array("Allow" => implode(",", $methods)));
                 }
-            )->method('OPTIONS');
+            )->method("OPTIONS");
 
-            unset($routeDetails["requirements"]["_method"]);
+            $routeDetails["requirements"]["_method"] = "OPTIONS";
             $controller->setRequirements($routeDetails["requirements"]);
         }
     }
