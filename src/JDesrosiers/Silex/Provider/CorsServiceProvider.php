@@ -19,7 +19,7 @@ class CorsServiceProvider implements ServiceProviderInterface
      */
     public function boot(Application $app)
     {
-        // This seems to necessary sometimes.  I'm not sure why.
+        // This seems to be necessary sometimes.  I'm not sure why.
         $app->flush();
 
         // Accumulate allow data
@@ -42,10 +42,10 @@ class CorsServiceProvider implements ServiceProviderInterface
                 function () use ($methods) {
                     return new Response("", 204, array("Allow" => implode(",", $methods)));
                 }
-            )->method("OPTIONS");
+            );
 
-            $routeDetails["requirements"]["_method"] = "OPTIONS";
             $controller->setRequirements($routeDetails["requirements"]);
+            $controller->method("OPTIONS");
         }
     }
 

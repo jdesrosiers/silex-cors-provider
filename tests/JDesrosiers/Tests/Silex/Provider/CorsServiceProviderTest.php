@@ -4,7 +4,6 @@ namespace JDesrosiers\Tests\Silex\Provider;
 
 use JDesrosiers\Silex\Provider\CorsServiceProvider;
 use Silex\Application;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Client;
 
 require_once __DIR__ . "/../../../../../vendor/autoload.php";
@@ -243,7 +242,6 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
         $client->request("OPTIONS", "/foo");
 
         $response = $client->getResponse();
-        print_r((string) $response);
 
         $this->assertEquals("204", $response->getStatusCode());
         $this->assertEquals("GET,POST", $response->headers->get("Allow"));
