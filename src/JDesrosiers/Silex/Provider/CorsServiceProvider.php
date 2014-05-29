@@ -2,15 +2,17 @@
 
 namespace JDesrosiers\Silex\Provider;
 
+use Pimple\Container;
+use Pimple\ServiceProviderInterface;
 use Silex\Application;
-use Silex\ServiceProviderInterface;
+use Silex\Api\BootableProviderInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * The CORS service provider provides a `cors` service that a can be included in your project as application middleware.
  */
-class CorsServiceProvider implements ServiceProviderInterface
+class CorsServiceProvider implements ServiceProviderInterface, BootableProviderInterface
 {
     /**
      * Add OPTIONS method support for all routes
@@ -54,7 +56,7 @@ class CorsServiceProvider implements ServiceProviderInterface
      *
      * @param Application $app
      */
-    public function register(Application $app)
+    public function register(Container $app)
     {
         $app["cors.allowOrigin"] = null; // Defaults to all
         $app["cors.allowMethods"] = null; // Defaults to all
