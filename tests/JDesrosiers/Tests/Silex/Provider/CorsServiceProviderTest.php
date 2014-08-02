@@ -197,6 +197,27 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("", $response->getContent());
     }
 
+    public function testAllowOriginWildcard()
+    {
+        $this->app["cors.allowOrigin"] = "*";
+
+        $this->app->get("/foo", function () {
+            return "foo";
+        });
+
+        $headers = array(
+            "HTTP_ORIGIN" => "www.foo.com",
+            "HTTP_ACCESS_CONTROL_REQUEST_METHOD" => "GET",
+        );
+        $client = new Client($this->app, $headers);
+        $client->request("OPTIONS", "/foo");
+
+        $response = $client->getResponse();
+
+        $this->assertEquals("204", $response->getStatusCode());
+        $this->assertEquals($headers["HTTP_ORIGIN"], $response->headers->get("Access-Control-Allow-Origin"));
+    }
+
     public function testAllowMethods()
     {
         $this->app["cors.allowMethods"] = "GET";
