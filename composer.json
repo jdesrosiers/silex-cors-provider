@@ -17,8 +17,8 @@
         "phpunit/phpunit": "3.7.*"
     },
     "autoload": {
-        "psr-0": {
-            "JDesrosiers": "src/"
+        "psr-4": {
+            "JDesrosiers\\Silex\\Provider\\": "src/"
         }
     },
     "minimum-stability": "dev"
