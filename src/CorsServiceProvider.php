@@ -8,6 +8,7 @@ use Silex\Application;
 use Silex\Api\BootableProviderInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\RouteCollection;
 
 /**
  * The CORS service provider provides a `cors` service that a can be included in your project as application middleware.
@@ -21,12 +22,36 @@ class CorsServiceProvider implements ServiceProviderInterface, BootableProviderI
      */
     public function boot(Application $app)
     {
-        // This seems to be necessary sometimes.  I'm not sure why.
-        $app->flush();
+        $app->flush(); // This seems to be necessary sometimes.  I'm not sure why.
+        $this->createOptionsRoutes($app, $this->determineAllowedMethods($app["routes"]));
+    }
 
-        // Accumulate allow data
+    /**
+     * Register the cors function and set defaults
+     *
+     * @param Application $app
+     */
+    public function register(Container $app)
+    {
+        $app["cors.allowOrigin"] = "*"; // Defaults to all
+        $app["cors.allowMethods"] = null; // Defaults to all
+        $app["cors.maxAge"] = null;
+        $app["cors.allowCredentials"] = false;
+        $app["cors.exposeHeaders"] = null;
+
+        $cors = new Cors();
+
+        $app["cors"] = $app->protect(
+            function (Request $request, Response $response) use ($cors, $app) {
+                $response->headers->add($cors->handle($app, $request, $response));
+            }
+        );
+    }
+
+    protected function determineAllowedMethods(RouteCollection $routes)
+    {
         $allow = array();
-        foreach ($app["routes"] as $route) {
+        foreach ($routes as $route) {
             $path = $route->getPath();
             if (!array_key_exists($path, $allow)) {
                 $allow[$path] = array("methods" => array(), "requirements" => array());
@@ -36,7 +61,11 @@ class CorsServiceProvider implements ServiceProviderInterface, BootableProviderI
             $allow[$path]["requirements"] = array_merge($allow[$path]["requirements"], $route->getRequirements());
         }
 
-        // Create OPTIONS routes
+        return $allow;
+    }
+
+    protected function createOptionsRoutes(Application $app, $allow)
+    {
         foreach ($allow as $path => $routeDetails) {
             $methods = $routeDetails["methods"];
             $controller = $app->match(
@@ -49,67 +78,5 @@ class CorsServiceProvider implements ServiceProviderInterface, BootableProviderI
             $controller->setRequirements($routeDetails["requirements"]);
             $controller->method("OPTIONS");
         }
-    }
-
-    /**
-     * Register the cors function and set defaults
-     *
-     * @param Application $app
-     */
-    public function register(Container $app)
-    {
-        $app["cors.allowOrigin"] = null; // Defaults to all
-        $app["cors.allowMethods"] = null; // Defaults to all
-        $app["cors.maxAge"] = null;
-        $app["cors.allowCredentials"] = false;
-        $app["cors.exposeHeaders"] = null;
-
-        $app["cors"] = $app->protect(
-            function (Request $request, Response $response) use ($app) {
-                if (!$request->headers->has("Origin")) {
-                    // Not a CORS request
-                    return;
-                }
-
-                if ($request->getMethod() === "OPTIONS" && $request->headers->has("Access-Control-Request-Method")) {
-                    // Preflight Request
-                    $allow = $response->headers->get("Allow");
-                    $allowMethods = !is_null($app["cors.allowMethods"]) ? $app["cors.allowMethods"] : $allow;
-
-                    $requestMethod = $request->headers->get("Access-Control-Request-Method");
-                    if (!in_array($requestMethod, preg_split("/\s*,\s*/", $allowMethods))) {
-                        // Not a valid prefight request
-                        return false;
-                    }
-
-                    if ($request->headers->has("Access-Control-Request-Headers")) {
-                        // TODO: Allow cors.allowHeaders to be set and use it to validate the request
-                        $requestHeaders = $request->headers->get("Access-Control-Request-Headers");
-                        $response->headers->set("Access-Control-Allow-Headers", $requestHeaders);
-                    }
-
-                    $response->headers->set("Access-Control-Allow-Methods", $allowMethods);
-
-                    if (!is_null($app["cors.maxAge"])) {
-                        $response->headers->set("Access-Control-Max-Age", $app["cors.maxAge"]);
-                    }
-                } elseif (!is_null($app["cors.exposeHeaders"])) {
-                    // Actual Request
-                    $response->headers->set("Access-Control-Expose-Headers", $app["cors.exposeHeaders"]);
-                }
-
-                $origin = $request->headers->get("Origin");
-                if (is_null($app["cors.allowOrigin"])) {
-                    $app["cors.allowOrigin"] = $origin;
-                }
-
-                $allowOrigin = in_array($origin, preg_split('/\s+/', $app["cors.allowOrigin"])) ? $origin : "null";
-                $response->headers->set("Access-Control-Allow-Origin", $allowOrigin);
-
-                if (!is_null($app["cors.allowCredentials"])) {
-                    $response->headers->set("Access-Control-Allow-Credentials", "true");
-                }
-            }
-        );
     }
 }
