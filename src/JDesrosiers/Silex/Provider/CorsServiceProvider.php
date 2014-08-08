@@ -29,7 +29,7 @@ class CorsServiceProvider implements ServiceProviderInterface
             if (!array_key_exists($path, $allow)) {
                 $allow[$path] = array("methods" => array(), "requirements" => array());
             }
-            
+
             $allow[$path]["methods"] = array_merge($allow[$path]["methods"], $route->getMethods());
             $allow[$path]["requirements"] = array_merge($allow[$path]["requirements"], $route->getRequirements());
         }
@@ -108,7 +108,7 @@ class CorsServiceProvider implements ServiceProviderInterface
                 $allowOrigin = in_array($origin, preg_split('/\s+/', $app["cors.allowOrigin"])) ? $origin : "null";
                 $response->headers->set("Access-Control-Allow-Origin", $allowOrigin);
 
-                if (!is_null($app["cors.allowCredentials"])) {
+                if ($app["cors.allowCredentials"] === true) {
                     $response->headers->set("Access-Control-Allow-Credentials", "true");
                 }
             }
