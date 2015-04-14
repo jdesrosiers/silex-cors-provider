@@ -1,14 +1,23 @@
 filter:
-    excluded_paths: [vendor/*, tests/*]
+    excluded_paths: [vendor/*]
+
+build:
+    tests:
+        override:
+            -
+                command: 'vendor/bin/phpunit --coverage-clover=coverage'
+                coverage:
+                    file: 'coverage'
+                    format: 'php-clover'
 
 tools:
     php_mess_detector: true
     php_cpd:
         enabled: true
-        excluded_dirs: [vendor, tests]
+        excluded_dirs: [vendor]
     php_pdepend:
         enabled: true
-        excluded_dirs: [vendor, tests]
+        excluded_dirs: [vendor]
     php_code_sniffer:
         enabled: true
         config:
@@ -16,7 +25,7 @@ tools:
     php_code_coverage: true
     php_loc:
         enabled: true
-        excluded_dirs: [vendor, tests]
+        excluded_dirs: [vendor]
     sensiolabs_security_checker: true
 
 before_commands:

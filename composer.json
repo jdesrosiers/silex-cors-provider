@@ -17,9 +17,12 @@
         "phpunit/phpunit": "3.7.*"
     },
     "autoload": {
-        "psr-0": {
-            "JDesrosiers": "src/"
+        "psr-4": {
+            "JDesrosiers\\Silex\\Provider\\": "src/"
         }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit --colors"
     },
     "minimum-stability": "stable"
 }

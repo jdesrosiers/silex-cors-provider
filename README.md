@@ -1,7 +1,6 @@
 silex-cors-provider
 ===================
 
-[![Gittip](http://img.shields.io/gittip/jdesrosiers.svg)](https://www.gittip.com/jdesrosiers/)
 [![Build Status](https://travis-ci.org/jdesrosiers/silex-cors-provider.png?branch=master)](https://travis-ci.org/jdesrosiers/silex-cors-provider)
 [![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/jdesrosiers/silex-cors-provider/badges/quality-score.png?s=d593c5178dadb082de1ff21a806906867e46888c)](https://scrutinizer-ci.com/g/jdesrosiers/silex-cors-provider/)
 [![Code Coverage](https://scrutinizer-ci.com/g/jdesrosiers/silex-cors-provider/badges/coverage.png?s=b4b2acc88ac7db8452058ba2b66ef2b3bbb42deb)](https://scrutinizer-ci.com/g/jdesrosiers/silex-cors-provider/)
@@ -38,7 +37,7 @@ Services
 Registering
 -----------
 ```php
-$app->register(new CorsServiceProvider(), array(
+$app->register(new JDesrosiers\Silex\ProviderCorsServiceProvider(), array(
     "cors.allowOrigin" => "http://petstore.swagger.wordnik.com",
 ));
 ```

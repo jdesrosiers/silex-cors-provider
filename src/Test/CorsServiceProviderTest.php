@@ -1,12 +1,12 @@
 <?php
 
-namespace JDesrosiers\Tests\Silex\Provider;
+namespace JDesrosiers\Silex\Provider\Test;
 
 use JDesrosiers\Silex\Provider\CorsServiceProvider;
 use Silex\Application;
 use Symfony\Component\HttpKernel\Client;
 
-require_once __DIR__ . "/../../../../../vendor/autoload.php";
+require_once __DIR__ . "/../../vendor/autoload.php";
 
 class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
 {
