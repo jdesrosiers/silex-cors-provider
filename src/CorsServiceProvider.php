@@ -4,6 +4,7 @@ namespace JDesrosiers\Silex\Provider;
 
 use Silex\Application;
 use Silex\ServiceProviderInterface;
+use Symfony\Component\Routing\RouteCollection;
 
 /**
  * The CORS service provider provides a `cors` service that a can be included in your project as application middleware.
@@ -17,27 +18,8 @@ class CorsServiceProvider implements ServiceProviderInterface
      */
     public function boot(Application $app)
     {
-        // This seems to be necessary sometimes.  I'm not sure why.
-        $app->flush();
-
-        // Accumulate allow data
-        $allow = array();
-        foreach ($app["routes"] as $route) {
-            $path = $route->getPath();
-            if (!array_key_exists($path, $allow)) {
-                $allow[$path] = array("methods" => array(), "requirements" => array());
-            }
-
-            $allow[$path]["methods"] = array_merge($allow[$path]["methods"], $route->getMethods());
-            $allow[$path]["requirements"] = array_merge($allow[$path]["requirements"], $route->getRequirements());
-        }
-
-        // Create OPTIONS routes
-        foreach ($allow as $path => $routeDetails) {
-            $app->match($path, new OptionsController($routeDetails["methods"]))
-                ->setRequirements($routeDetails["requirements"])
-                ->method("OPTIONS");
-        }
+        $app->flush(); // This seems to be necessary sometimes.  I'm not sure why.
+        $this->createOptionsRoutes($app, $this->determineAllowedMethods($app["routes"]));
     }
 
     /**
@@ -54,5 +36,30 @@ class CorsServiceProvider implements ServiceProviderInterface
         $app["cors.exposeHeaders"] = null;
 
         $app["cors"] = $app->protect(new Cors($app));
+    }
+
+    private function determineAllowedMethods(RouteCollection $routes)
+    {
+        $allow = array();
+        foreach ($routes as $route) {
+            $path = $route->getPath();
+            if (!array_key_exists($path, $allow)) {
+                $allow[$path] = array("methods" => array(), "requirements" => array());
+            }
+
+            $allow[$path]["methods"] = array_merge($allow[$path]["methods"], $route->getMethods());
+            $allow[$path]["requirements"] = array_merge($allow[$path]["requirements"], $route->getRequirements());
+        }
+
+        return $allow;
+    }
+
+    private function createOptionsRoutes(Application $app, $allow)
+    {
+        foreach ($allow as $path => $routeDetails) {
+            $app->match($path, new OptionsController($routeDetails["methods"]))
+                ->setRequirements($routeDetails["requirements"])
+                ->method("OPTIONS");
+        }
     }
 }
