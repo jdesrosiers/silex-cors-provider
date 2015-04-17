@@ -47,10 +47,10 @@ class CorsServiceProvider implements ServiceProviderInterface
      */
     public function register(Application $app)
     {
-        $app["cors.allowOrigin"] = null; // Defaults to all
+        $app["cors.allowOrigin"] = "*"; // Defaults to all
         $app["cors.allowMethods"] = null; // Defaults to all
         $app["cors.maxAge"] = null;
-        $app["cors.allowCredentials"] = false;
+        $app["cors.allowCredentials"] = null;
         $app["cors.exposeHeaders"] = null;
 
         $app["cors"] = $app->protect(new Cors($app));
