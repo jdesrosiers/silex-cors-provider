@@ -49,9 +49,8 @@ class CorsServiceProvider implements ServiceProviderInterface, BootableProviderI
                 $allow[$path] = array("methods" => array(), "requirements" => array());
             }
 
-            $requirements = array_filter($route->getRequirements(), function ($key) {
-                return $key !== "_method";
-            }, ARRAY_FILTER_USE_KEY);
+            $requirements = $route->getRequirements();
+            unset($requirements["_method"]);
 
             $allow[$path]["methods"] = array_merge($allow[$path]["methods"], $route->getMethods());
             $allow[$path]["requirements"] = array_merge($allow[$path]["requirements"], $requirements);

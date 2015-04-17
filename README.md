@@ -2,8 +2,8 @@ silex-cors-provider
 ===================
 
 [![Build Status](https://travis-ci.org/jdesrosiers/silex-cors-provider.png?branch=master)](https://travis-ci.org/jdesrosiers/silex-cors-provider)
-[![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/jdesrosiers/silex-cors-provider/badges/quality-score.png?s=d593c5178dadb082de1ff21a806906867e46888c)](https://scrutinizer-ci.com/g/jdesrosiers/silex-cors-provider/)
-[![Code Coverage](https://scrutinizer-ci.com/g/jdesrosiers/silex-cors-provider/badges/coverage.png?s=b4b2acc88ac7db8452058ba2b66ef2b3bbb42deb)](https://scrutinizer-ci.com/g/jdesrosiers/silex-cors-provider/)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/jdesrosiers/silex-cors-provider/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/jdesrosiers/silex-cors-provider/?branch=master)
+[![Code Coverage](https://scrutinizer-ci.com/g/jdesrosiers/silex-cors-provider/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/jdesrosiers/silex-cors-provider/?branch=master)
 
 The CorsServiceProvider provides [CORS](http://enable-cors.org/) support as middleware for your silex application.  CORS
 allows you to make AJAX requests accross domains.  CORS uses OPTIONS requests to make prefight requests.  Because silex
