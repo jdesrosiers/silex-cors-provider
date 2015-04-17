@@ -21,5 +21,8 @@
             "JDesrosiers\\Silex\\Provider\\": "src/"
         }
     },
+    "scripts": {
+        "test": "vendor/bin/phpunit --colors"
+    },
     "minimum-stability": "dev"
 }

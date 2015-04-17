@@ -1,12 +1,12 @@
 <?php
 
-namespace JDesrosiers\Tests\Silex\Provider;
+namespace JDesrosiers\Silex\Provider\Test;
 
 use JDesrosiers\Silex\Provider\CorsServiceProvider;
 use Silex\Application;
 use Symfony\Component\HttpKernel\Client;
 
-require_once __DIR__ . "/../vendor/autoload.php";
+require_once __DIR__ . "/../../vendor/autoload.php";
 
 class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
 {
@@ -132,6 +132,7 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
     public function dataProviderAllowOrigin()
     {
         return array(
+            array(null),
             array("*"),
             array("www.foo.com"),
             array("www.foo.com www.bar.com"),
@@ -253,6 +254,33 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($response->headers->has("Access-Control-Expose-Headers"));
         $this->assertFalse($response->headers->has("Content-Type"));
         $this->assertEquals("", $response->getContent());
+    }
+
+    public function testAllowCredentialsAndExposeCredentials()
+    {
+        $this->app["cors.allowCredentials"] = true;
+        $this->app["cors.exposeHeaders"] = "Foo-Bar Baz";
+
+        $this->app->get("/foo", function () {
+            return "foo";
+        });
+
+        $headers = array(
+            "HTTP_ORIGIN" => "www.foo.com",
+        );
+        $client = new Client($this->app, $headers);
+        $client->request("GET", "/foo");
+
+        $response = $client->getResponse();
+
+        $this->assertEquals("200", $response->getStatusCode());
+        $this->assertFalse($response->headers->has("Access-Control-Allow-Methods"));
+        $this->assertEquals("www.foo.com", $response->headers->get("Access-Control-Allow-Origin"));
+        $this->assertFalse($response->headers->has("Access-Control-Allow-Headers"));
+        $this->assertFalse($response->headers->has("Access-Control-Max-Age"));
+        $this->assertEquals("true", $response->headers->get("Access-Control-Allow-Credentials"));
+        $this->assertEquals("Foo-Bar Baz", $response->headers->get("Access-Control-Expose-Headers"));
+        $this->assertEquals("foo", $response->getContent());
     }
 
     public function testNotEnabledMethod()

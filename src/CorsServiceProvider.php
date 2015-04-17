@@ -4,9 +4,8 @@ namespace JDesrosiers\Silex\Provider;
 
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
-use Silex\Application;
 use Silex\Api\BootableProviderInterface;
-use Symfony\Component\HttpFoundation\Request;
+use Silex\Application;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouteCollection;
 
@@ -36,19 +35,13 @@ class CorsServiceProvider implements ServiceProviderInterface, BootableProviderI
         $app["cors.allowOrigin"] = "*"; // Defaults to all
         $app["cors.allowMethods"] = null; // Defaults to all
         $app["cors.maxAge"] = null;
-        $app["cors.allowCredentials"] = false;
+        $app["cors.allowCredentials"] = null;
         $app["cors.exposeHeaders"] = null;
 
-        $cors = new Cors();
-
-        $app["cors"] = $app->protect(
-            function (Request $request, Response $response) use ($cors, $app) {
-                $response->headers->add($cors->handle($app, $request, $response));
-            }
-        );
+        $app["cors"] = $app->protect(new Cors($app));
     }
 
-    protected function determineAllowedMethods(RouteCollection $routes)
+    private function determineAllowedMethods(RouteCollection $routes)
     {
         $allow = array();
         foreach ($routes as $route) {
@@ -57,26 +50,23 @@ class CorsServiceProvider implements ServiceProviderInterface, BootableProviderI
                 $allow[$path] = array("methods" => array(), "requirements" => array());
             }
 
+            $requirements = array_filter($route->getRequirements(), function ($key) {
+                return $key !== "_method";
+            }, ARRAY_FILTER_USE_KEY);
+
             $allow[$path]["methods"] = array_merge($allow[$path]["methods"], $route->getMethods());
-            $allow[$path]["requirements"] = array_merge($allow[$path]["requirements"], $route->getRequirements());
+            $allow[$path]["requirements"] = array_merge($allow[$path]["requirements"], $requirements);
         }
 
         return $allow;
     }
 
-    protected function createOptionsRoutes(Application $app, $allow)
+    private function createOptionsRoutes(Application $app, $allow)
     {
         foreach ($allow as $path => $routeDetails) {
-            $methods = $routeDetails["methods"];
-            $controller = $app->match(
-                $path,
-                function () use ($methods) {
-                    return new Response("", 204, array("Allow" => implode(",", $methods)));
-                }
-            );
-
-            $controller->setRequirements($routeDetails["requirements"]);
-            $controller->method("OPTIONS");
+            $app->match($path, new OptionsController($routeDetails["methods"]))
+                ->setRequirements($routeDetails["requirements"])
+                ->method("OPTIONS");
         }
     }
 }
