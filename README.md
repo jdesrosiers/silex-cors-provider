@@ -6,8 +6,8 @@ silex-cors-provider
 [![Code Coverage](https://scrutinizer-ci.com/g/jdesrosiers/silex-cors-provider/badges/coverage.png?b=v0)](https://scrutinizer-ci.com/g/jdesrosiers/silex-cors-provider/?branch=v0)
 
 The CorsServiceProvider provides [CORS](http://enable-cors.org/) support as middleware for your silex application.  CORS
-allows you to make AJAX requests accross domains.  CORS uses OPTIONS requests to make prefight requests.  Because silex
-doesn't have functionaily for serving OPTIONS request by default, this service goes through all of your routes and
+allows you to make AJAX requests across domains.  CORS uses OPTIONS requests to make preflight requests.  Because silex
+doesn't have functionality for serving OPTIONS request by default, this service goes through all of your routes and
 generates the necessary OPTIONS routes.
 
 Installation
@@ -45,7 +45,7 @@ $app->register(new JDesrosiers\Silex\Provider\CorsServiceProvider(), array(
 Usage
 -----
 The following shows how to add CORS functionality to the entire application.  It can also be applied to a
-ControllerCollection a Route to limit it's scope.
+ControllerCollection a Route to limit its scope.
 ```php
 $app->after($app["cors"]);
 ```
