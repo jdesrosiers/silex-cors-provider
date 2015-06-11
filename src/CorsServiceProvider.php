@@ -57,6 +57,10 @@ class CorsServiceProvider implements ServiceProviderInterface
     private function createOptionsRoutes(Application $app, $allow)
     {
         foreach ($allow as $path => $routeDetails) {
+            // Remove _method from requirements, it would cause a
+            // E_USER_DEPRECATED error with Symfony Routing component 2.7+
+            unset($routeDetails['requirements']['_method']);
+
             $app->match($path, new OptionsController($routeDetails["methods"]))
                 ->setRequirements($routeDetails["requirements"])
                 ->method("OPTIONS");
