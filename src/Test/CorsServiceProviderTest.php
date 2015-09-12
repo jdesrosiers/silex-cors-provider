@@ -6,8 +6,6 @@ use JDesrosiers\Silex\Provider\CorsServiceProvider;
 use Silex\Application;
 use Symfony\Component\HttpKernel\Client;
 
-require_once __DIR__ . "/../../vendor/autoload.php";
-
 class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
 {
     protected $app;
@@ -197,6 +195,33 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("", $response->getContent());
     }
 
+    public function testDefaultAllowMethodsWithMultipleAllow()
+    {
+        $this->app->match("/foo", function () {
+            return "foo";
+        })->method("GET|POST");
+
+        $headers = array(
+            "HTTP_ORIGIN" => "www.foo.com",
+            "HTTP_ACCESS_CONTROL_REQUEST_METHOD" => "GET",
+        );
+        $client = new Client($this->app, $headers);
+        $client->request("OPTIONS", "/foo");
+
+        $response = $client->getResponse();
+
+        $this->assertEquals("204", $response->getStatusCode());
+        $this->assertEquals("GET,POST", $response->headers->get("Allow"));
+        $this->assertEquals("GET,POST", $response->headers->get("Access-Control-Allow-Methods"));
+        $this->assertEquals("www.foo.com", $response->headers->get("Access-Control-Allow-Origin"));
+        $this->assertFalse($response->headers->has("Access-Control-Allow-Headers"));
+        $this->assertEquals("15", $response->headers->get("Access-Control-Max-Age"));
+        $this->assertFalse($response->headers->has("Access-Control-Allow-Credentials"));
+        $this->assertFalse($response->headers->has("Access-Control-Expose-Headers"));
+        $this->assertFalse($response->headers->has("Content-Type"));
+        $this->assertEquals("", $response->getContent());
+    }
+
     public function testAllowMethods()
     {
         $this->app["cors.allowMethods"] = "GET";
@@ -255,13 +280,13 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("", $response->getContent());
     }
 
-    public function testAllowMultipleAccessControlAllowMethods()
+    public function testAllowMultipleAllowMethods()
     {
         $this->app["cors.allowMethods"] = "GET,POST";
 
         $this->app->match("/foo", function () {
             return "foo";
-        })->method("GET|POST");
+        })->method("GET|POST|DELETE");
 
         $headers = array(
             "HTTP_ORIGIN" => "www.foo.com",
@@ -273,7 +298,8 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
         $response = $client->getResponse();
 
         $this->assertEquals("204", $response->getStatusCode());
-        $this->assertEquals("GET,POST", $response->headers->get("Allow"));
+        $this->assertEquals("GET,POST,DELETE", $response->headers->get("Allow"));
+        $this->assertEquals("GET,POST", $response->headers->get("Access-Control-Allow-Methods"));
         $this->assertEquals("www.foo.com", $response->headers->get("Access-Control-Allow-Origin"));
         $this->assertFalse($response->headers->has("Access-Control-Allow-Headers"));
         $this->assertEquals("15", $response->headers->get("Access-Control-Max-Age"));
@@ -281,7 +307,6 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($response->headers->has("Access-Control-Expose-Headers"));
         $this->assertFalse($response->headers->has("Content-Type"));
         $this->assertEquals("", $response->getContent());
-        $this->assertEquals("GET,POST", $response->headers->get("Access-Control-Allow-Methods"));
     }
 
     public function testAllowCredentialsAndExposeCredentials()

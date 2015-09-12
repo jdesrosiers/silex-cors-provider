@@ -29,21 +29,22 @@ class Cors
         }
 
         if ($this->isPreflightRequest($request)) {
-            $allowedMethods = $this->allowedMethods($request, $allow);
-            if (!in_array($request->headers->get("Access-Control-Request-Method"), $allowedMethods)) {
+            $allowedMethods = $this->allowedMethods($allow);
+            $requestMethod = $request->headers->get("Access-Control-Request-Method");
+            if (!in_array($requestMethod, preg_split("/\s*,\s*/", $allowedMethods))) {
                 return array();
             }
 
             // TODO: Allow cors.allowHeaders to be set and use it to validate the request
             $headers["Access-Control-Allow-Headers"] = $request->headers->get("Access-Control-Request-Headers");
-            $headers["Access-Control-Allow-Methods"] = implode(',', $allowedMethods);
+            $headers["Access-Control-Allow-Methods"] = $allowedMethods;
             $headers["Access-Control-Max-Age"] = $this->app["cors.maxAge"];
         } else {
             $headers["Access-Control-Expose-Headers"] = $this->app["cors.exposeHeaders"];
         }
 
         $headers["Access-Control-Allow-Origin"] = $this->allowOrigin($request);
-        $headers["Access-Control-Allow-Credentials"] = $this->allowCredentials($request);
+        $headers["Access-Control-Allow-Credentials"] = $this->allowCredentials();
 
         return array_filter($headers);
     }
@@ -58,10 +59,9 @@ class Cors
         return $request->getMethod() === "OPTIONS" && $request->headers->has("Access-Control-Request-Method");
     }
 
-    private function allowedMethods(Request $request, $allow)
+    private function allowedMethods($allow)
     {
-        $allowMethods = !is_null($this->app["cors.allowMethods"]) ? $this->app["cors.allowMethods"] : $allow;
-        return preg_split("/\s*,\s*/", $allowMethods);
+        return !is_null($this->app["cors.allowMethods"]) ? $this->app["cors.allowMethods"] : $allow;
     }
 
     private function allowOrigin(Request $request)
@@ -78,7 +78,7 @@ class Cors
         return in_array($origin, preg_split('/\s+/', $this->app["cors.allowOrigin"])) ? $origin : "null";
     }
 
-    private function allowCredentials(Request $request)
+    private function allowCredentials()
     {
         return $this->app["cors.allowCredentials"] === true ? "true" : null;
     }
