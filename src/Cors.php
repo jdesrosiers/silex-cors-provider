@@ -2,7 +2,7 @@
 
 namespace JDesrosiers\Silex\Provider;
 
-use Silex\Application;
+use Pimple\Container;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -10,7 +10,7 @@ class Cors
 {
     private $app;
 
-    public function __construct(Application $app)
+    public function __construct(Container $app)
     {
         $this->app = $app;
     }
@@ -44,7 +44,7 @@ class Cors
         }
 
         $headers["Access-Control-Allow-Origin"] = $this->allowOrigin($request);
-        $headers["Access-Control-Allow-Credentials"] = $this->allowCredentials($request);
+        $headers["Access-Control-Allow-Credentials"] = $this->allowCredentials();
 
         return array_filter($headers);
     }

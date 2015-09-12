@@ -6,8 +6,6 @@ use JDesrosiers\Silex\Provider\CorsServiceProvider;
 use Silex\Application;
 use Symfony\Component\HttpKernel\Client;
 
-require_once __DIR__ . "/../../vendor/autoload.php";
-
 class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
 {
     protected $app;
@@ -18,7 +16,6 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
         $this->app["debug"] = true;
         $this->app->register(new CorsServiceProvider(), array(
             "cors.maxAge" => 15,
-            "cors.allowCredentials" => true,
         ));
         $this->app->after($this->app["cors"]);
     }
@@ -96,7 +93,7 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("www.foo.com", $response->headers->get("Access-Control-Allow-Origin"));
         $this->assertEquals("content-type", $response->headers->get("Access-Control-Allow-Headers"));
         $this->assertEquals("15", $response->headers->get("Access-Control-Max-Age"));
-        $this->assertEquals("true", $response->headers->get("Access-Control-Allow-Credentials"));
+        $this->assertFalse($response->headers->has("Access-Control-Allow-Credentials"));
         $this->assertFalse($response->headers->has("Access-Control-Expose-Headers"));
         $this->assertFalse($response->headers->has("Content-Type"));
         $this->assertEquals("", $response->getContent());
@@ -164,7 +161,7 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("www.foo.com", $response->headers->get("Access-Control-Allow-Origin"));
         $this->assertFalse($response->headers->has("Access-Control-Allow-Headers"));
         $this->assertFalse($response->headers->has("Access-Control-Max-Age"));
-        $this->assertEquals("true", $response->headers->get("Access-Control-Allow-Credentials"));
+        $this->assertFalse($response->headers->has("Access-Control-Allow-Credentials"));
         $this->assertFalse($response->headers->has("Access-Control-Expose-Headers"));
         $this->assertEquals("foo", $response->getContent());
     }
@@ -192,7 +189,7 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("null", $response->headers->get("Access-Control-Allow-Origin"));
         $this->assertFalse($response->headers->has("Access-Control-Allow-Headers"));
         $this->assertEquals("15", $response->headers->get("Access-Control-Max-Age"));
-        $this->assertEquals("true", $response->headers->get("Access-Control-Allow-Credentials"));
+        $this->assertFalse($response->headers->has("Access-Control-Allow-Credentials"));
         $this->assertFalse($response->headers->has("Access-Control-Expose-Headers"));
         $this->assertFalse($response->headers->has("Content-Type"));
         $this->assertEquals("", $response->getContent());
@@ -248,7 +245,7 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("www.foo.com", $response->headers->get("Access-Control-Allow-Origin"));
         $this->assertFalse($response->headers->has("Access-Control-Allow-Headers"));
         $this->assertEquals("15", $response->headers->get("Access-Control-Max-Age"));
-        $this->assertEquals("true", $response->headers->get("Access-Control-Allow-Credentials"));
+        $this->assertFalse($response->headers->has("Access-Control-Allow-Credentials"));
         $this->assertFalse($response->headers->has("Access-Control-Expose-Headers"));
         $this->assertFalse($response->headers->has("Content-Type"));
         $this->assertEquals("", $response->getContent());
