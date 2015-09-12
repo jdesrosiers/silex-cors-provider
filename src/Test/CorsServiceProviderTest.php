@@ -255,6 +255,35 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("", $response->getContent());
     }
 
+    public function testAllowMultipleAccessControlAllowMethods()
+    {
+        $this->app["cors.allowMethods"] = "GET,POST";
+
+        $this->app->match("/foo", function () {
+            return "foo";
+        })->method("GET|POST");
+
+        $headers = array(
+            "HTTP_ORIGIN" => "www.foo.com",
+            "HTTP_ACCESS_CONTROL_REQUEST_METHOD" => "GET",
+        );
+        $client = new Client($this->app, $headers);
+        $client->request("OPTIONS", "/foo");
+
+        $response = $client->getResponse();
+
+        $this->assertEquals("204", $response->getStatusCode());
+        $this->assertEquals("GET,POST", $response->headers->get("Allow"));
+        $this->assertEquals("www.foo.com", $response->headers->get("Access-Control-Allow-Origin"));
+        $this->assertFalse($response->headers->has("Access-Control-Allow-Headers"));
+        $this->assertEquals("15", $response->headers->get("Access-Control-Max-Age"));
+        $this->assertFalse($response->headers->has("Access-Control-Allow-Credentials"));
+        $this->assertFalse($response->headers->has("Access-Control-Expose-Headers"));
+        $this->assertFalse($response->headers->has("Content-Type"));
+        $this->assertEquals("", $response->getContent());
+        $this->assertEquals("GET,POST", $response->headers->get("Access-Control-Allow-Methods"));
+    }
+
     public function testAllowCredentialsAndExposeCredentials()
     {
         $this->app["cors.allowCredentials"] = true;

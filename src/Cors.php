@@ -36,7 +36,7 @@ class Cors
 
             // TODO: Allow cors.allowHeaders to be set and use it to validate the request
             $headers["Access-Control-Allow-Headers"] = $request->headers->get("Access-Control-Request-Headers");
-            $headers["Access-Control-Allow-Methods"] = $allowedMethods;
+            $headers["Access-Control-Allow-Methods"] = implode(',', $allowedMethods);
             $headers["Access-Control-Max-Age"] = $this->app["cors.maxAge"];
         } else {
             $headers["Access-Control-Expose-Headers"] = $this->app["cors.exposeHeaders"];
