@@ -1,7 +1,7 @@
 language: php
 
 env:
-  - SILEX_VERSION="dev-master"
+  - SILEX_VERSION="2.0.*"
 
 before_script:
   - composer require silex/silex:${SILEX_VERSION}
@@ -12,3 +12,4 @@ script: vendor/bin/phpunit
 php:
   - 5.5
   - 5.6
+  - 7.0

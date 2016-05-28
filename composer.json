@@ -10,7 +10,7 @@
         }
     ],
     "require": {
-        "silex/silex": "2.0.*@dev"
+        "silex/silex": "~2.0"
     },
     "require-dev": {
         "symfony/browser-kit": "2.3.*",
@@ -23,6 +23,5 @@
     },
     "scripts": {
         "test": "vendor/bin/phpunit --colors"
-    },
-    "minimum-stability": "dev"
+    }
 }
