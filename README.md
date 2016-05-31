@@ -15,7 +15,7 @@ Installation
 Install the silex-cors-provider using [composer](http://getcomposer.org/).  This project uses [sematic versioning](http://semver.org/).
 
 ```bash
-composer require jdesrosiers/silex-cors-provider "~0.1"
+composer require jdesrosiers/silex-cors-provider "~1.0"
 ```
 
 Parameters
