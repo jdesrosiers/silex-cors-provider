@@ -40,11 +40,11 @@ class CorsServiceProvider implements ServiceProviderInterface
 
     private function determineAllowedMethods(RouteCollection $routes)
     {
-        $allow = array();
+        $allow = [];
         foreach ($routes as $route) {
             $path = $route->getPath();
             if (!array_key_exists($path, $allow)) {
-                $allow[$path] = array("methods" => array(), "requirements" => array());
+                $allow[$path] = ["methods" => [], "requirements" => []];
             }
 
             $allow[$path]["methods"] = array_merge($allow[$path]["methods"], $route->getMethods());

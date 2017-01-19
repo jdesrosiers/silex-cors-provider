@@ -37,9 +37,9 @@ Services
 Registering
 -----------
 ```php
-$app->register(new JDesrosiers\Silex\Provider\CorsServiceProvider(), array(
+$app->register(new JDesrosiers\Silex\Provider\CorsServiceProvider(), [
     "cors.allowOrigin" => "http://petstore.swagger.wordnik.com",
-));
+]);
 ```
 
 Usage

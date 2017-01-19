@@ -15,6 +15,6 @@ class OptionsController
 
     public function __invoke()
     {
-        return Response::create("", 204, array("Allow" => implode(",", $this->methods)));
+        return Response::create("", 204, ["Allow" => implode(",", $this->methods)]);
     }
 }
