@@ -66,16 +66,24 @@ class Cors
 
     private function allowOrigin(Request $request)
     {
-        if ($this->app["cors.allowOrigin"] === '*') {
-            $this->app["cors.allowOrigin"] = null;
-        }
-
         $origin = $request->headers->get("Origin");
-        if (is_null($this->app["cors.allowOrigin"])) {
+        if ($this->app["cors.allowOrigin"] === "*") {
             $this->app["cors.allowOrigin"] = $origin;
         }
 
-        return in_array($origin, preg_split('/\s+/', $this->app["cors.allowOrigin"])) ? $origin : "null";
+        $origins = preg_split('/\s+/', $this->app["cors.allowOrigin"]);
+        foreach ($origins as $domain) {
+            if (preg_match($this->domainToRegex($domain), $origin)) {
+                return $origin;
+            }
+        }
+
+        return "null";
+    }
+
+    private function domainToRegex($domain)
+    {
+        return "/^" . preg_replace("/^\\\\\*/", "[^.]*", preg_quote($domain)) . "$/";
     }
 
     private function allowCredentials()

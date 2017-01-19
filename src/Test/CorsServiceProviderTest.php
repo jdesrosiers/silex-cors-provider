@@ -129,10 +129,11 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
     public function dataProviderAllowOrigin()
     {
         return array(
-            array(null),
             array("*"),
             array("www.foo.com"),
+            array("*.foo.com"),
             array("www.foo.com www.bar.com"),
+            array("*.foo.com www.bar.com"),
             array("www.bar.com www.foo.com"),
         );
     }
