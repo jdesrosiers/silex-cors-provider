@@ -22,17 +22,17 @@ class Cors
 
     private function corsHeaders(Request $request, $allow)
     {
-        $headers = array();
+        $headers = [];
 
         if (!$this->isCorsRequest($request)) {
-            return array();
+            return [];
         }
 
         if ($this->isPreflightRequest($request)) {
             $allowedMethods = $this->allowedMethods($allow);
             $requestMethod = $request->headers->get("Access-Control-Request-Method");
             if (!in_array($requestMethod, preg_split("/\s*,\s*/", $allowedMethods))) {
-                return array();
+                return [];
             }
 
             // TODO: Allow cors.allowHeaders to be set and use it to validate the request

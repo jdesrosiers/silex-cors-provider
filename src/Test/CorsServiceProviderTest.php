@@ -14,9 +14,9 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
     {
         $this->app = new Application();
         $this->app["debug"] = true;
-        $this->app->register(new CorsServiceProvider(), array(
+        $this->app->register(new CorsServiceProvider(), [
             "cors.maxAge" => 15,
-        ));
+        ]);
         $this->app->after($this->app["cors"]);
     }
 
@@ -77,11 +77,11 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
             return "foo";
         });
 
-        $headers = array(
+        $headers = [
             "HTTP_ORIGIN" => "www.foo.com",
             "HTTP_ACCESS_CONTROL_REQUEST_METHOD" => "GET",
             "HTTP_ACCESS_CONTROL_REQUEST_HEADERS" => "content-type",
-        );
+        ];
         $client = new Client($this->app, $headers);
         $client->request("OPTIONS", "/foo");
 
@@ -105,10 +105,10 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
             return "foo";
         });
 
-        $headers = array(
+        $headers = [
             "HTTP_ORIGIN" => "www.foo.com",
             "HTTP_ACCESS_CONTROL_REQUEST_METHOD" => "POST",
-        );
+        ];
         $client = new Client($this->app, $headers);
         $client->request("OPTIONS", "/foo");
 
@@ -128,14 +128,14 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
 
     public function dataProviderAllowOrigin()
     {
-        return array(
-            array("*"),
-            array("www.foo.com"),
-            array("*.foo.com"),
-            array("www.foo.com www.bar.com"),
-            array("*.foo.com www.bar.com"),
-            array("www.bar.com www.foo.com"),
-        );
+        return [
+            ["*"],
+            ["www.foo.com"],
+            ["*.foo.com"],
+            ["www.foo.com www.bar.com"],
+            ["*.foo.com www.bar.com"],
+            ["www.bar.com www.foo.com"],
+        ];
     }
 
     /**
@@ -149,9 +149,9 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
             return "foo";
         });
 
-        $headers = array(
+        $headers = [
             "HTTP_ORIGIN" => "www.foo.com",
-        );
+        ];
         $client = new Client($this->app, $headers);
         $client->request("GET", "/foo");
 
@@ -175,10 +175,10 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
             return "foo";
         });
 
-        $headers = array(
+        $headers = [
             "HTTP_ORIGIN" => "www.foo.com",
             "HTTP_ACCESS_CONTROL_REQUEST_METHOD" => "GET",
-        );
+        ];
         $client = new Client($this->app, $headers);
         $client->request("OPTIONS", "/foo");
 
@@ -231,10 +231,10 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
             return "foo";
         })->method("GET|POST");
 
-        $headers = array(
+        $headers = [
             "HTTP_ORIGIN" => "www.foo.com",
             "HTTP_ACCESS_CONTROL_REQUEST_METHOD" => "GET",
-        );
+        ];
         $client = new Client($this->app, $headers);
         $client->request("OPTIONS", "/foo");
 
@@ -260,10 +260,10 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
             return "foo";
         })->method("GET|POST");
 
-        $headers = array(
+        $headers = [
             "HTTP_ORIGIN" => "www.foo.com",
             "HTTP_ACCESS_CONTROL_REQUEST_METHOD" => "POST",
-        );
+        ];
         $client = new Client($this->app, $headers);
         $client->request("OPTIONS", "/foo");
 
@@ -319,9 +319,9 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
             return "foo";
         });
 
-        $headers = array(
+        $headers = [
             "HTTP_ORIGIN" => "www.foo.com",
-        );
+        ];
         $client = new Client($this->app, $headers);
         $client->request("GET", "/foo");
 
