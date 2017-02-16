@@ -4,7 +4,6 @@ namespace JDesrosiers\Silex\Provider;
 
 use Silex\Application;
 use Silex\ServiceProviderInterface;
-use Symfony\Component\Routing\RouteCollection;
 
 /**
  * The CORS service provider provides a `cors` service that a can be included in your project as application middleware.
@@ -18,8 +17,9 @@ class CorsServiceProvider implements ServiceProviderInterface
      */
     public function boot(Application $app)
     {
-        $app->flush(); // This seems to be necessary sometimes.  I'm not sure why.
-        $this->createOptionsRoutes($app, $this->determineAllowedMethods($app["routes"]));
+        $app->match("{route}", new OptionsController())
+            ->assert("route", ".+")
+            ->method("OPTIONS");
     }
 
     /**
@@ -36,34 +36,5 @@ class CorsServiceProvider implements ServiceProviderInterface
         $app["cors.exposeHeaders"] = null;
 
         $app["cors"] = $app->protect(new Cors($app));
-    }
-
-    private function determineAllowedMethods(RouteCollection $routes)
-    {
-        $allow = [];
-        foreach ($routes as $route) {
-            $path = $route->getPath();
-            if (!array_key_exists($path, $allow)) {
-                $allow[$path] = ["methods" => [], "requirements" => []];
-            }
-
-            $allow[$path]["methods"] = array_merge($allow[$path]["methods"], $route->getMethods());
-            $allow[$path]["requirements"] = array_merge($allow[$path]["requirements"], $route->getRequirements());
-        }
-
-        return $allow;
-    }
-
-    private function createOptionsRoutes(Application $app, $allow)
-    {
-        foreach ($allow as $path => $routeDetails) {
-            // Remove _method from requirements, it would cause a
-            // E_USER_DEPRECATED error with Symfony Routing component 2.7+
-            unset($routeDetails['requirements']['_method']);
-
-            $app->match($path, new OptionsController($routeDetails["methods"]))
-                ->setRequirements($routeDetails["requirements"])
-                ->method("OPTIONS");
-        }
     }
 }
