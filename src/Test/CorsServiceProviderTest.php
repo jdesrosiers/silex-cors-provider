@@ -78,7 +78,7 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
         });
 
         $headers = [
-            "HTTP_ORIGIN" => "www.foo.com",
+            "HTTP_ORIGIN" => "http://www.foo.com",
             "HTTP_ACCESS_CONTROL_REQUEST_METHOD" => "GET",
             "HTTP_ACCESS_CONTROL_REQUEST_HEADERS" => "content-type",
         ];
@@ -90,7 +90,7 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("204", $response->getStatusCode());
         $this->assertEquals("GET", $response->headers->get("Allow"));
         $this->assertEquals("GET", $response->headers->get("Access-Control-Allow-Methods"));
-        $this->assertEquals("www.foo.com", $response->headers->get("Access-Control-Allow-Origin"));
+        $this->assertEquals("http://www.foo.com", $response->headers->get("Access-Control-Allow-Origin"));
         $this->assertEquals("content-type", $response->headers->get("Access-Control-Allow-Headers"));
         $this->assertEquals("15", $response->headers->get("Access-Control-Max-Age"));
         $this->assertFalse($response->headers->has("Access-Control-Allow-Credentials"));
@@ -106,7 +106,7 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
         });
 
         $headers = [
-            "HTTP_ORIGIN" => "www.foo.com",
+            "HTTP_ORIGIN" => "http://www.foo.com",
             "HTTP_ACCESS_CONTROL_REQUEST_METHOD" => "POST",
         ];
         $client = new Client($this->app, $headers);
@@ -130,11 +130,11 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
     {
         return [
             ["*"],
-            ["www.foo.com"],
+            ["http://www.foo.com"],
             ["*.foo.com"],
-            ["www.foo.com www.bar.com"],
-            ["*.foo.com www.bar.com"],
-            ["www.bar.com www.foo.com"],
+            ["http://www.foo.com http://www.bar.com"],
+            ["*.foo.com http://www.bar.com"],
+            ["http://www.bar.com http://www.foo.com"],
         ];
     }
 
@@ -150,7 +150,7 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
         });
 
         $headers = [
-            "HTTP_ORIGIN" => "www.foo.com",
+            "HTTP_ORIGIN" => "http://www.foo.com",
         ];
         $client = new Client($this->app, $headers);
         $client->request("GET", "/foo");
@@ -159,7 +159,7 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals("200", $response->getStatusCode());
         $this->assertFalse($response->headers->has("Access-Control-Allow-Methods"));
-        $this->assertEquals("www.foo.com", $response->headers->get("Access-Control-Allow-Origin"));
+        $this->assertEquals("http://www.foo.com", $response->headers->get("Access-Control-Allow-Origin"));
         $this->assertFalse($response->headers->has("Access-Control-Allow-Headers"));
         $this->assertFalse($response->headers->has("Access-Control-Max-Age"));
         $this->assertFalse($response->headers->has("Access-Control-Allow-Credentials"));
@@ -169,14 +169,14 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
 
     public function testAllowOriginFail()
     {
-        $this->app["cors.allowOrigin"] = "www.bar.com";
+        $this->app["cors.allowOrigin"] = "http://www.bar.com";
 
         $this->app->get("/foo", function () {
             return "foo";
         });
 
         $headers = [
-            "HTTP_ORIGIN" => "www.foo.com",
+            "HTTP_ORIGIN" => "http://www.foo.com",
             "HTTP_ACCESS_CONTROL_REQUEST_METHOD" => "GET",
         ];
         $client = new Client($this->app, $headers);
@@ -203,7 +203,7 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
         })->method("GET|POST");
 
         $headers = array(
-            "HTTP_ORIGIN" => "www.foo.com",
+            "HTTP_ORIGIN" => "http://www.foo.com",
             "HTTP_ACCESS_CONTROL_REQUEST_METHOD" => "GET",
         );
         $client = new Client($this->app, $headers);
@@ -214,7 +214,7 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("204", $response->getStatusCode());
         $this->assertEquals("GET,POST", $response->headers->get("Allow"));
         $this->assertEquals("GET,POST", $response->headers->get("Access-Control-Allow-Methods"));
-        $this->assertEquals("www.foo.com", $response->headers->get("Access-Control-Allow-Origin"));
+        $this->assertEquals("http://www.foo.com", $response->headers->get("Access-Control-Allow-Origin"));
         $this->assertFalse($response->headers->has("Access-Control-Allow-Headers"));
         $this->assertEquals("15", $response->headers->get("Access-Control-Max-Age"));
         $this->assertFalse($response->headers->has("Access-Control-Allow-Credentials"));
@@ -232,7 +232,7 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
         })->method("GET|POST");
 
         $headers = [
-            "HTTP_ORIGIN" => "www.foo.com",
+            "HTTP_ORIGIN" => "http://www.foo.com",
             "HTTP_ACCESS_CONTROL_REQUEST_METHOD" => "GET",
         ];
         $client = new Client($this->app, $headers);
@@ -243,7 +243,7 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("204", $response->getStatusCode());
         $this->assertEquals("GET,POST", $response->headers->get("Allow"));
         $this->assertEquals("GET", $response->headers->get("Access-Control-Allow-Methods"));
-        $this->assertEquals("www.foo.com", $response->headers->get("Access-Control-Allow-Origin"));
+        $this->assertEquals("http://www.foo.com", $response->headers->get("Access-Control-Allow-Origin"));
         $this->assertFalse($response->headers->has("Access-Control-Allow-Headers"));
         $this->assertEquals("15", $response->headers->get("Access-Control-Max-Age"));
         $this->assertFalse($response->headers->has("Access-Control-Allow-Credentials"));
@@ -261,7 +261,7 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
         })->method("GET|POST");
 
         $headers = [
-            "HTTP_ORIGIN" => "www.foo.com",
+            "HTTP_ORIGIN" => "http://www.foo.com",
             "HTTP_ACCESS_CONTROL_REQUEST_METHOD" => "POST",
         ];
         $client = new Client($this->app, $headers);
@@ -290,7 +290,7 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
         })->method("GET|POST|DELETE");
 
         $headers = array(
-            "HTTP_ORIGIN" => "www.foo.com",
+            "HTTP_ORIGIN" => "http://www.foo.com",
             "HTTP_ACCESS_CONTROL_REQUEST_METHOD" => "GET",
         );
         $client = new Client($this->app, $headers);
@@ -301,7 +301,7 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("204", $response->getStatusCode());
         $this->assertEquals("GET,POST,DELETE", $response->headers->get("Allow"));
         $this->assertEquals("GET,POST", $response->headers->get("Access-Control-Allow-Methods"));
-        $this->assertEquals("www.foo.com", $response->headers->get("Access-Control-Allow-Origin"));
+        $this->assertEquals("http://www.foo.com", $response->headers->get("Access-Control-Allow-Origin"));
         $this->assertFalse($response->headers->has("Access-Control-Allow-Headers"));
         $this->assertEquals("15", $response->headers->get("Access-Control-Max-Age"));
         $this->assertFalse($response->headers->has("Access-Control-Allow-Credentials"));
@@ -320,7 +320,7 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
         });
 
         $headers = [
-            "HTTP_ORIGIN" => "www.foo.com",
+            "HTTP_ORIGIN" => "http://www.foo.com",
         ];
         $client = new Client($this->app, $headers);
         $client->request("GET", "/foo");
@@ -329,7 +329,7 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals("200", $response->getStatusCode());
         $this->assertFalse($response->headers->has("Access-Control-Allow-Methods"));
-        $this->assertEquals("www.foo.com", $response->headers->get("Access-Control-Allow-Origin"));
+        $this->assertEquals("http://www.foo.com", $response->headers->get("Access-Control-Allow-Origin"));
         $this->assertFalse($response->headers->has("Access-Control-Allow-Headers"));
         $this->assertFalse($response->headers->has("Access-Control-Max-Age"));
         $this->assertEquals("true", $response->headers->get("Access-Control-Allow-Credentials"));
