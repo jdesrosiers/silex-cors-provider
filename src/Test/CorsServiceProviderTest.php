@@ -20,57 +20,6 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
         $this->app->after($this->app["cors"]);
     }
 
-    public function testOptionsMethod()
-    {
-        $this->app->get("/foo", function () {
-            return "foo";
-        });
-        $this->app->post("/foo", function () {
-            return "foo";
-        });
-
-        $client = new Client($this->app);
-        $client->request("OPTIONS", "/foo");
-
-        $response = $client->getResponse();
-
-        $this->assertEquals("204", $response->getStatusCode());
-        $this->assertFalse($response->headers->has("Content-Type"));
-        $this->assertEquals("GET,POST", $response->headers->get("Allow"));
-        $this->assertEquals("", $response->getContent());
-    }
-
-    public function testOptionsMethodWithRequirements()
-    {
-        $this->app->get("/foo/{foo}", function () {
-            return "foo";
-        })->assert("foo", "\d+");
-
-        $client = new Client($this->app);
-        $client->request("OPTIONS", "/foo/23");
-
-        $response = $client->getResponse();
-
-        $this->assertEquals("204", $response->getStatusCode());
-        $this->assertFalse($response->headers->has("Content-Type"));
-        $this->assertEquals("GET", $response->headers->get("Allow"));
-        $this->assertEquals("", $response->getContent());
-    }
-
-    public function testOptionsMethodWithRequirements404()
-    {
-        $this->app->get("/foo/{foo}", function () {
-            return "foo";
-        })->assert("foo", "\d+");
-
-        $client = new Client($this->app);
-        $client->request("OPTIONS", "/foo/asdf");
-
-        $response = $client->getResponse();
-
-        $this->assertEquals("404", $response->getStatusCode());
-    }
-
     public function testCorsPreFlight()
     {
         $this->app->get("/foo", function () {
@@ -281,7 +230,7 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("", $response->getContent());
     }
 
-    public function testAllowMultipleAllowMethods()
+    public function testMultipleAllowMethods()
     {
         $this->app["cors.allowMethods"] = "GET,POST";
 
@@ -310,7 +259,7 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("", $response->getContent());
     }
 
-    public function testAllowCredentialsAndExposeCredentials()
+    public function testAllowCredentialsAndExposeHeaders()
     {
         $this->app["cors.allowCredentials"] = true;
         $this->app["cors.exposeHeaders"] = "Foo-Bar Baz";
