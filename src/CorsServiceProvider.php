@@ -3,6 +3,8 @@
 namespace JDesrosiers\Silex\Provider;
 
 use Silex\Application;
+use Silex\Controller;
+use Silex\ControllerCollection;
 use Silex\ServiceProviderInterface;
 
 /**
@@ -36,5 +38,20 @@ class CorsServiceProvider implements ServiceProviderInterface
         $app["cors.exposeHeaders"] = null;
 
         $app["cors"] = $app->protect(new Cors($app));
+
+        $app["cors-enabled"] = $app->protect(function ($subject) use ($app) {
+            if ($subject instanceof Controller) {
+                $app->match($subject->getRoute()->getPath(), new OptionsController())
+                    ->after($app["cors"])
+                    ->method("OPTIONS");
+            } else if ($subject instanceof ControllerCollection) {
+                $subject->match("{path}", new OptionsController())
+                    ->assert("path", ".*")
+                    ->method("OPTIONS");
+            }
+            $subject->after($app["cors"]);
+
+            return $subject;
+        });
     }
 }
