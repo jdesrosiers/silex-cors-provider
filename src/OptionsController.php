@@ -28,7 +28,7 @@ class OptionsController
 
         $app["request_context"]->setMethod("OPTIONS");
 
-        if (count($allow) == 0) {
+        if (count($allow) === 0) {
             throw new NotFoundHttpException();
         }
 
