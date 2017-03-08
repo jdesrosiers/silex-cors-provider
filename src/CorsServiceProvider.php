@@ -8,6 +8,10 @@ use Silex\Api\BootableProviderInterface;
 use Silex\Application;
 use Silex\Controller;
 use Silex\ControllerCollection;
+use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * The CORS service provider provides a `cors` service that a can be included in your project as application middleware.
@@ -23,6 +27,13 @@ class CorsServiceProvider implements ServiceProviderInterface, BootableProviderI
     {
         $app->options("{route}", new OptionsController())
             ->assert("route", ".+");
+
+        $app->on(KernelEvents::EXCEPTION, function (GetResponseForExceptionEvent $event) {
+            $e = $event->getException();
+            if ($e instanceof MethodNotAllowedHttpException && $e->getHeaders()["Allow"] === "OPTIONS") {
+                $event->setException(new NotFoundHttpException());
+            }
+        });
     }
 
     /**
