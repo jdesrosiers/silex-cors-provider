@@ -45,6 +45,7 @@ class CorsServiceProvider implements ServiceProviderInterface, BootableProviderI
     {
         $app["cors.allowOrigin"] = "*"; // Defaults to all
         $app["cors.allowMethods"] = null; // Defaults to all
+        $app["cors.allowHeaders"] = null; // Defaults to all
         $app["cors.maxAge"] = null;
         $app["cors.allowCredentials"] = null;
         $app["cors.exposeHeaders"] = null;
