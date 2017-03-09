@@ -29,15 +29,18 @@ class Cors
         }
 
         if ($this->isPreflightRequest($request)) {
-            $allowedMethods = $this->allowedMethods($allow);
             $requestMethod = $request->headers->get("Access-Control-Request-Method");
-            if (!in_array($requestMethod, preg_split("/\s*,\s*/", $allowedMethods))) {
+            if (!$this->isMethodAllowed($requestMethod, $allow)) {
                 return [];
             }
 
-            // TODO: Allow cors.allowHeaders to be set and use it to validate the request
-            $headers["Access-Control-Allow-Headers"] = $request->headers->get("Access-Control-Request-Headers");
-            $headers["Access-Control-Allow-Methods"] = $allowedMethods;
+            $requestHeaders = $request->headers->get("Access-Control-Request-Headers");
+            if (!$this->areHeadersAllowed($requestHeaders)) {
+                return [];
+            }
+
+            $headers["Access-Control-Allow-Headers"] = $requestHeaders;
+            $headers["Access-Control-Allow-Methods"] = $requestMethod;
             $headers["Access-Control-Max-Age"] = $this->app["cors.maxAge"];
         } else {
             $headers["Access-Control-Expose-Headers"] = $this->app["cors.exposeHeaders"];
@@ -59,9 +62,21 @@ class Cors
         return $request->getMethod() === "OPTIONS" && $request->headers->has("Access-Control-Request-Method");
     }
 
-    private function allowedMethods($allow)
+    private function isMethodAllowed($requestMethod, $allow)
     {
-        return !is_null($this->app["cors.allowMethods"]) ? $this->app["cors.allowMethods"] : $allow;
+        $commaSeparatedMethods = !is_null($this->app["cors.allowMethods"]) ? $this->app["cors.allowMethods"] : $allow;
+        $allowedMethods = array_filter(preg_split("/\s*,\s*/", $commaSeparatedMethods));
+        return in_array($requestMethod, $allowedMethods);
+    }
+
+    private function areHeadersAllowed($commaSeparatedRequestHeaders)
+    {
+        if ($this->app["cors.allowHeaders"] === null) {
+            return true;
+        }
+        $requestHeaders = array_filter(preg_split("/\s*,\s*/", $commaSeparatedRequestHeaders));
+        $allowedHeaders = array_filter(preg_split("/\s*,\s*/", $this->app["cors.allowHeaders"]));
+        return array_diff($requestHeaders, $allowedHeaders) === [];
     }
 
     private function allowOrigin(Request $request)
@@ -71,7 +86,7 @@ class Cors
             $this->app["cors.allowOrigin"] = $origin;
         }
 
-        $origins = preg_split('/\s+/', $this->app["cors.allowOrigin"]);
+        $origins = array_filter(preg_split('/\s+/', $this->app["cors.allowOrigin"]));
         foreach ($origins as $domain) {
             if (preg_match($this->domainToRegex($domain), $origin)) {
                 return $origin;
