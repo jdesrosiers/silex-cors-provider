@@ -32,7 +32,9 @@ Services
 --------
 * **cors**: A function that can be added as after middleware to the Application, a ControllerCollection, or a Controller.
 * **cors-enabled**: Pass this function an Application, ControllerCollection, or a Controller and it will enable CORS
-support for any controller that object includes.
+support for any controller that object includes.  Optionally, you can pass an array of options as a second parameter.
+The options you can pass are the same as the `cors.*` parameters without the `cors.` part.  This is useful of you need
+different configuration for different routes.
 
 Registering
 -----------

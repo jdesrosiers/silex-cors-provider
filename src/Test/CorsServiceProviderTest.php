@@ -17,11 +17,12 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
         $this->app->register(new CorsServiceProvider(), [
             "cors.maxAge" => 15,
         ]);
-        $this->app->after($this->app["cors"]);
     }
 
     public function testCorsPreFlight()
     {
+        $this->app["cors-enabled"]($this->app);
+
         $this->app->get("/foo", function () {
             return "foo";
         });
@@ -50,6 +51,8 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
 
     public function testCorsPreFlightFail()
     {
+        $this->app["cors-enabled"]($this->app);
+
         $this->app->get("/foo", function () {
             return "foo";
         });
@@ -92,7 +95,7 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
      */
     public function testAllowOrigin($domain)
     {
-        $this->app["cors.allowOrigin"] = $domain;
+        $this->app["cors-enabled"]($this->app, ["allowOrigin" => $domain]);
 
         $this->app->get("/foo", function () {
             return "foo";
@@ -118,7 +121,7 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
 
     public function testAllowOriginFail()
     {
-        $this->app["cors.allowOrigin"] = "http://www.bar.com";
+        $this->app["cors-enabled"]($this->app, ["allowOrigin" => "http://www.bar.com"]);
 
         $this->app->get("/foo", function () {
             return "foo";
@@ -147,6 +150,8 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
 
     public function testDefaultAllowMethodsWithMultipleAllow()
     {
+        $this->app["cors-enabled"]($this->app);
+
         $this->app->match("/foo", function () {
             return "foo";
         })->method("GET|POST");
@@ -174,7 +179,7 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
 
     public function testAllowMethods()
     {
-        $this->app["cors.allowMethods"] = "GET";
+        $this->app["cors-enabled"]($this->app, ["allowMethods" => "GET"]);
 
         $this->app->match("/foo", function () {
             return "foo";
@@ -203,7 +208,7 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
 
     public function testAllowHeadersFail()
     {
-        $this->app["cors.allowHeaders"] = "";
+        $this->app["cors-enabled"]($this->app, ["allowHeaders" => ""]);
 
         $this->app->get("/foo", function () {
             return "foo";
@@ -233,7 +238,7 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
 
     public function testAllowMethodsFail()
     {
-        $this->app["cors.allowMethods"] = "GET";
+        $this->app["cors-enabled"]($this->app, ["allowMethods" => "GET"]);
 
         $this->app->match("/foo", function () {
             return "foo";
@@ -262,7 +267,7 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
 
     public function testMultipleAllowMethods()
     {
-        $this->app["cors.allowMethods"] = "GET,POST";
+        $this->app["cors-enabled"]($this->app, ["allowMethods" => "GET,POST"]);
 
         $this->app->match("/foo", function () {
             return "foo";
@@ -291,8 +296,7 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
 
     public function testAllowCredentialsAndExposeHeaders()
     {
-        $this->app["cors.allowCredentials"] = true;
-        $this->app["cors.exposeHeaders"] = "Foo-Bar Baz";
+        $this->app["cors-enabled"]($this->app, ["allowCredentials" => true, "exposeHeaders" => "Foo-Bar Baz"]);
 
         $this->app->get("/foo", function () {
             return "foo";
@@ -318,6 +322,8 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
 
     public function testNotEnabledMethod()
     {
+        $this->app["cors-enabled"]($this->app);
+
         $this->app->post("/foo", function () {
             return "foo";
         });
@@ -333,6 +339,8 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
 
     public function testRouteWithOptionsOnlyRespondsWith404()
     {
+        $this->app["cors-enabled"]($this->app);
+
         $client = new Client($this->app);
         $client->request("GET", "/foo");
 

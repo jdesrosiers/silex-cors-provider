@@ -50,17 +50,17 @@ class CorsServiceProvider implements ServiceProviderInterface, BootableProviderI
         $app["cors.allowCredentials"] = null;
         $app["cors.exposeHeaders"] = null;
 
-        $app["cors"] = $app->protect(new Cors($app));
+        $app["cors"] = $app->protect(new Cors());
 
-        $app["cors-enabled"] = $app->protect(function ($subject) use ($app) {
+        $app["cors-enabled"] = $app->protect(function ($subject, $options = []) use ($app) {
             if ($subject instanceof Controller) {
                 $app->options($subject->getRoute()->getPath(), new OptionsController())
-                    ->after($app["cors"]);
+                    ->after(new Cors($options));
             } else if ($subject instanceof ControllerCollection) {
                 $subject->options("{path}", new OptionsController())
                     ->assert("path", ".*");
             }
-            $subject->after($app["cors"]);
+            $subject->after(new Cors($options));
 
             return $subject;
         });
