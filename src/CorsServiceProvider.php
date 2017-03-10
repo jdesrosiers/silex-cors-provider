@@ -51,17 +51,17 @@ class CorsServiceProvider implements ServiceProviderInterface
 
         $app["cors"] = $app->protect(new Cors($app));
 
-        $app["cors-enabled"] = $app->protect(function ($subject) use ($app) {
+        $app["cors-enabled"] = $app->protect(function ($subject, $options = []) use ($app) {
             if ($subject instanceof Controller) {
                 $app->match($subject->getRoute()->getPath(), new OptionsController())
-                    ->after($app["cors"])
+                    ->after(new Cors($app, $options))
                     ->method("OPTIONS");
             } else if ($subject instanceof ControllerCollection) {
                 $subject->match("{path}", new OptionsController())
                     ->assert("path", ".*")
                     ->method("OPTIONS");
             }
-            $subject->after($app["cors"]);
+            $subject->after(new Cors($app, $options));
 
             return $subject;
         });
