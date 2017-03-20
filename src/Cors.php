@@ -61,12 +61,20 @@ class Cors
         $response->headers->add(array_filter($headers));
     }
 
-    private function isCorsRequest(Request $request)
+    /**
+     * @param Request $request
+     * @return bool
+     */
+    public function isCorsRequest(Request $request)
     {
         return $request->headers->has("Origin");
     }
 
-    private function isPreflightRequest(Request $request)
+    /**
+     * @param Request $request
+     * @return bool
+     */
+    public function isPreflightRequest(Request $request)
     {
         return $request->getMethod() === "OPTIONS" && $request->headers->has("Access-Control-Request-Method");
     }
