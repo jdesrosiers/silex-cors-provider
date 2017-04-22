@@ -296,7 +296,7 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
 
     public function testAllowCredentialsAndExposeHeaders()
     {
-        $this->app["cors-enabled"]($this->app, ["allowCredentials" => true, "exposeHeaders" => "Foo-Bar Baz"]);
+        $this->app["cors-enabled"]($this->app, ["allowCredentials" => true, "exposeHeaders" => "Foo-Bar,Baz"]);
 
         $this->app->get("/foo", function () {
             return "foo";
@@ -316,7 +316,7 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($response->headers->has("Access-Control-Allow-Headers"));
         $this->assertFalse($response->headers->has("Access-Control-Max-Age"));
         $this->assertEquals("true", $response->headers->get("Access-Control-Allow-Credentials"));
-        $this->assertEquals("Foo-Bar Baz", $response->headers->get("Access-Control-Expose-Headers"));
+        $this->assertEquals("Foo-Bar,Baz", $response->headers->get("Access-Control-Expose-Headers"));
         $this->assertEquals("foo", $response->getContent());
     }
 
