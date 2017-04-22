@@ -26,7 +26,7 @@ Defaults to all.
 * **cors.allowHeaders**: (string) Comma separated set of allowed HTTP request headers.  Defaults to all.
 * **cors.maxAge**: (int) The number of seconds a CORS pre-flight response can be cached.  Defaults to 0.
 * **cors.allowCredentials**: (boolean) Are cookies allowed?  Defaults to false.
-* **cors.exposeHeaders**: (string) Space separated set of headers that are safe to expose.  Defaults to all.
+* **cors.exposeHeaders**: (string) Comma separated set of headers that are safe to expose.  Defaults to none.  This should not include the six simple response headers which are always exposed: `Cache-Control`, `Content-Language`, `Content-Type`, `Expires`, `Last-Modified`, `Pragma`.
 
 Services
 --------
