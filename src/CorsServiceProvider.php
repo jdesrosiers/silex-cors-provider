@@ -26,7 +26,7 @@ class CorsServiceProvider implements ServiceProviderInterface, BootableProviderI
     public function boot(Application $app)
     {
         $app->options("{route}", new OptionsController())
-            ->assert("route", ".+");
+            ->assert("route", ".*");
 
         $app->on(KernelEvents::EXCEPTION, function (GetResponseForExceptionEvent $event) {
             $e = $event->getException();
