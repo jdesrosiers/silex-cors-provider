@@ -14,7 +14,7 @@ class OptionsControllerTest extends \PHPUnit_Framework_TestCase
     {
         $this->app = new Application();
         $this->app["debug"] = true;
-        
+
         $this->app->match("{path}", new OptionsController())
             ->assert("path", ".*")
             ->method("OPTIONS");
