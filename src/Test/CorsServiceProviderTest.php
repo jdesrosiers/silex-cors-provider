@@ -138,10 +138,10 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals("204", $response->getStatusCode());
         $this->assertEquals("GET", $response->headers->get("Allow"));
-        $this->assertEquals("GET", $response->headers->get("Access-Control-Allow-Methods"));
-        $this->assertEquals("null", $response->headers->get("Access-Control-Allow-Origin"));
+        $this->assertFalse($response->headers->has("Access-Control-Allow-Methods"));
+        $this->assertFalse($response->headers->has("Access-Control-Allow-Origin"));
         $this->assertFalse($response->headers->has("Access-Control-Allow-Headers"));
-        $this->assertEquals("15", $response->headers->get("Access-Control-Max-Age"));
+        $this->assertFalse($response->headers->has("Access-Control-Max-Age"));
         $this->assertFalse($response->headers->has("Access-Control-Allow-Credentials"));
         $this->assertFalse($response->headers->has("Access-Control-Expose-Headers"));
         $this->assertFalse($response->headers->has("Content-Type"));

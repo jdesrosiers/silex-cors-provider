@@ -57,7 +57,13 @@ class Cors
             $headers["Access-Control-Expose-Headers"] = $options["exposeHeaders"];
         }
 
-        $headers["Access-Control-Allow-Origin"] = $this->allowOrigin($request, $options["allowOrigin"]);
+        $allowOrigin = $this->allowOrigin($request, $options["allowOrigin"]);
+
+        if (!$allowOrigin) {
+            return [];
+        }
+
+        $headers["Access-Control-Allow-Origin"] = $allowOrigin;
         $headers["Access-Control-Allow-Credentials"] = $this->allowCredentials($options["allowCredentials"]);
 
         $response->headers->add(array_filter($headers));
@@ -104,7 +110,7 @@ class Cors
             }
         }
 
-        return "null";
+        return false;
     }
 
     private function domainToRegex($domain)
