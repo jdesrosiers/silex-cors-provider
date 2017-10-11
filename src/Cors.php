@@ -113,7 +113,7 @@ class Cors
 
     private function domainToRegex($domain)
     {
-        return "/^" . preg_replace("/^\\\\\*/", "[^.]+", preg_quote($domain, "/")) . "$/";
+        return "/^" . preg_replace("/\\\\\*/", "[^.]+", preg_quote($domain, "/")) . "$/";
     }
 
     private function allowCredentials($allowCredentials)
