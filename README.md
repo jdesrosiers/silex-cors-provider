@@ -20,7 +20,7 @@ composer require jdesrosiers/silex-cors-provider "~1.0"
 
 Parameters
 ----------
-* **cors.allowOrigin**: (string) Space separated set of allowed domains (wildcards allowed e.g. *.example.com).
+* **cors.allowOrigin**: (string) Space separated set of allowed domains (wildcards allowed e.g. http://*.example.com).
 Defaults to all.
 * **cors.allowMethods**: (string) Comma separated set of allowed HTTP methods.  Defaults to all.
 * **cors.allowHeaders**: (string) Comma separated set of allowed HTTP request headers.  Defaults to all.

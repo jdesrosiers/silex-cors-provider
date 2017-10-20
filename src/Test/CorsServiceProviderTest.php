@@ -84,6 +84,7 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
             ["*"],
             ["http://www.foo.com"],
             ["*.foo.com"],
+            ["http://*.foo.com"],
             ["http://www.foo.com http://www.bar.com"],
             ["*.foo.com http://www.bar.com"],
             ["http://www.bar.com http://www.foo.com"],
@@ -119,16 +120,34 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("foo", $response->getContent());
     }
 
-    public function testAllowOriginFail()
+    public function dataProviderAllowOriginFail()
     {
-        $this->app["cors-enabled"]($this->app, ["allowOrigin" => "http://www.bar.com"]);
+        return [
+            ["http://foo.example.com"],
+            ["http://bar.foo.example.com"],
+            ["http://bar.www.foo.example.com"],
+            ["*w.foo.example.com"],
+            ["w*.foo.example.com"],
+            ["www.*.example.com"],
+            ["http://*w.foo.example.com"],
+            ["http://w*.foo.example.com"],
+            ["http://www.*.example.com"]
+        ];
+    }
+
+    /**
+     * @dataProvider dataProviderAllowOriginFail
+     */
+    public function testAllowOriginFail($domain)
+    {
+        $this->app["cors-enabled"]($this->app, ["allowOrigin" => $domain]);
 
         $this->app->get("/foo", function () {
             return "foo";
         });
 
         $headers = [
-            "HTTP_ORIGIN" => "http://www.foo.com",
+            "HTTP_ORIGIN" => "http://www.foo.example.com",
             "HTTP_ACCESS_CONTROL_REQUEST_METHOD" => "GET",
         ];
         $client = new Client($this->app, $headers);
