@@ -115,7 +115,18 @@ class Cors
 
     private function domainToRegex($domain)
     {
-        return "/^" . preg_replace("/^\\\\\*/", "[^.]+", preg_quote($domain, "/")) . "$/";
+        $star = $this->doubleQuote("*");
+        $slash = $this->doubleQuote("/");
+        $dot = $this->doubleQuote(".");
+        $wildcard = "/(?<=^|$slash)$star(?=$dot)/";
+        $subdomain = "[^.]+";
+        $quotedDomain = preg_quote($domain, "/");
+        return "/^" . preg_replace($wildcard, $subdomain, $quotedDomain) . "$/";
+    }
+
+    private function doubleQuote($subject)
+    {
+        return preg_quote(preg_quote($subject, "/"), "/");
     }
 
     private function allowCredentials($allowCredentials)
