@@ -30,7 +30,7 @@ class CorsServiceProvider implements ServiceProviderInterface
         $app->on(KernelEvents::EXCEPTION, function (GetResponseForExceptionEvent $event) {
             $e = $event->getException();
             if ($e instanceof MethodNotAllowedHttpException && $e->getHeaders()["Allow"] === "OPTIONS") {
-                $event->setException(new NotFoundHttpException());
+                $event->setException(new NotFoundHttpException("No route found for \"{$event->getRequest()->getMethod()} {$event->getRequest()->getPathInfo()}\""));
             }
         });
     }
