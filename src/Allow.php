@@ -9,10 +9,11 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Exception\MethodNotAllowedException;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
-class OptionsController
+class Allow
 {
-    public function __invoke(Application $app, Request $request)
+    public function __invoke(Request $request, Response $response, Application $app)
     {
+        $requestMethod = $app["request_context"]->getMethod();
         $app["request_context"]->setMethod("NOTAMETHOD");
 
         try {
@@ -26,12 +27,14 @@ class OptionsController
             $allow = []; // Should never get here
         }
 
-        $app["request_context"]->setMethod("OPTIONS");
+        $app["request_context"]->setMethod($requestMethod);
 
         if (count($allow) === 0) {
             throw new NotFoundHttpException();
         }
 
-        return Response::create("", 204, ["Allow" => implode(",", $allow)]);
+        $response->headers->set("Allow", implode(",", $allow));
+
+        return $response;
     }
 }

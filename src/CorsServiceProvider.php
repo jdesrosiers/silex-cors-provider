@@ -7,7 +7,7 @@ use Pimple\ServiceProviderInterface;
 use Silex\Api\BootableProviderInterface;
 use Silex\Application;
 use Silex\Controller;
-use Silex\ControllerCollection;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -25,9 +25,6 @@ class CorsServiceProvider implements ServiceProviderInterface, BootableProviderI
      */
     public function boot(Application $app)
     {
-        $app->options("{route}", new OptionsController())
-            ->assert("route", ".*");
-
         $app->on(KernelEvents::EXCEPTION, function (GetResponseForExceptionEvent $event) {
             $e = $event->getException();
             if ($e instanceof MethodNotAllowedHttpException && $e->getHeaders()["Allow"] === "OPTIONS") {
@@ -39,7 +36,7 @@ class CorsServiceProvider implements ServiceProviderInterface, BootableProviderI
     /**
      * Register the cors function and set defaults
      *
-     * @param Application $app
+     * @param Container $app
      */
     public function register(Container $app)
     {
@@ -50,19 +47,41 @@ class CorsServiceProvider implements ServiceProviderInterface, BootableProviderI
         $app["cors.allowCredentials"] = null;
         $app["cors.exposeHeaders"] = null;
 
-        $app["cors"] = $app->protect(new Cors());
+        $app["allow"] = $app->protect(new Allow());
 
-        $app["cors-enabled"] = $app->protect(function ($subject, $options = []) use ($app) {
+        $app["options"] = $app->protect(function ($subject) use ($app) {
+            $optionsController = function () {
+                return Response::create("", 204);
+            };
+
             if ($subject instanceof Controller) {
-                $app->options($subject->getRoute()->getPath(), new OptionsController())
-                    ->after(new Cors($options));
-            } else if ($subject instanceof ControllerCollection) {
-                $subject->options("{path}", new OptionsController())
+                $optionsRoute = $app->options($subject->getRoute()->getPath(), $optionsController)
+                    ->after($app["allow"]);
+            } else {
+                $optionsRoute = $subject->options("{path}", $optionsController)
+                    ->after($app["allow"])
                     ->assert("path", ".*");
             }
-            $subject->after(new Cors($options));
+
+            return $optionsRoute;
+        });
+
+        $app["cors-enabled"] = $app->protect(function ($subject, $config = []) use ($app) {
+            $optionsController = $app["options"]($subject);
+            $cors = new Cors($config);
+
+            if ($subject instanceof Controller) {
+                $optionsController->after($cors);
+            }
+
+            $subject->after($cors);
 
             return $subject;
         });
+
+        $app["cors"] = function () use ($app) {
+            $app["options"]($app);
+            return new Cors();
+        };
     }
 }

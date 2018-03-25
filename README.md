@@ -30,11 +30,14 @@ Defaults to all.
 
 Services
 --------
-* **cors**: A function that can be added as after middleware to the Application, a ControllerCollection, or a Controller.
-* **cors-enabled**: Pass this function an Application, ControllerCollection, or a Controller and it will enable CORS
-support for any controller that object includes.  Optionally, you can pass an array of options as a second parameter.
-The options you can pass are the same as the `cors.*` parameters without the `cors.` part.  This is useful of you need
+* **cors**: A function that can be added as after middleware to the Application. (Deprecated. Use `cors-enabled` instead)
+* **cors-enabled**: Pass this function an Application, a ControllerCollection, or a Controller and it will enable CORS
+support for every route the object defines.  Optionally, you can pass an array of options as a second parameter.  The
+options you can pass are the same as the `cors.*` parameters without the `cors.` part.  This is useful of you need
 different configuration for different routes.
+* **options**: Similar to `cors-enabled` but only creates OPTIONS routes with no CORS support.
+* **allow**: A function that can be added as after middleware to an Application, a ControllerCollection, or a Controller
+that will add an `Allow` header to every route the object defines.
 
 Registering
 -----------
