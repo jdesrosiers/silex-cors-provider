@@ -353,10 +353,10 @@ class CorsServiceProviderTest extends \PHPUnit_Framework_TestCase
         $response = $client->getResponse();
 
         $this->assertEquals("405", $response->getStatusCode());
-        $this->assertEquals("POST, OPTIONS", $response->headers->get("Allow"));
+        $this->assertEquals("OPTIONS, POST", $response->headers->get("Allow"));
     }
 
-    public function testRouteWithOptionsOnlyRespondsWith404()
+    public function testRouteWithOnlyOptionsRespondsWith404()
     {
         $this->app["cors-enabled"]($this->app);
 

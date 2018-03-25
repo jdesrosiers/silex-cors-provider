@@ -43,7 +43,6 @@ class CorsEnableControllerCollectionTest extends \PHPUnit_Framework_TestCase
         $this->client->request("OPTIONS", "/bar");
         $response = $this->client->getResponse();
 
-        $this->assertTrue($response->isEmpty());
         $this->assertFalse($response->headers->has("Access-Control-Allow-Origin"));
     }
 

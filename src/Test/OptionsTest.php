@@ -2,11 +2,11 @@
 
 namespace JDesrosiers\Silex\Provider\Test;
 
-use JDesrosiers\Silex\Provider\OptionsController;
+use JDesrosiers\Silex\Provider\CorsServiceProvider;
 use Silex\Application;
 use Symfony\Component\HttpKernel\Client;
 
-class OptionsControllerTest extends \PHPUnit_Framework_TestCase
+class OptionsTest extends \PHPUnit_Framework_TestCase
 {
     protected $app;
 
@@ -14,10 +14,9 @@ class OptionsControllerTest extends \PHPUnit_Framework_TestCase
     {
         $this->app = new Application();
         $this->app["debug"] = true;
+        $this->app->register(new CorsServiceProvider());
 
-        $this->app->match("{path}", new OptionsController())
-            ->assert("path", ".*")
-            ->method("OPTIONS");
+        $this->app["options"]($this->app);
     }
 
     public function testOptionsMethod()

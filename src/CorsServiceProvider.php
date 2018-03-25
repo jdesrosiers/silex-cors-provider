@@ -4,8 +4,8 @@ namespace JDesrosiers\Silex\Provider;
 
 use Silex\Application;
 use Silex\Controller;
-use Silex\ControllerCollection;
 use Silex\ServiceProviderInterface;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -23,10 +23,6 @@ class CorsServiceProvider implements ServiceProviderInterface
      */
     public function boot(Application $app)
     {
-        $app->match("{route}", new OptionsController())
-            ->assert("route", ".*")
-            ->method("OPTIONS");
-
         $app->on(KernelEvents::EXCEPTION, function (GetResponseForExceptionEvent $event) {
             $e = $event->getException();
             if ($e instanceof MethodNotAllowedHttpException && $e->getHeaders()["Allow"] === "OPTIONS") {
@@ -38,7 +34,7 @@ class CorsServiceProvider implements ServiceProviderInterface
     /**
      * Register the cors function and set defaults
      *
-     * @param Application $app
+     * @param Container $app
      */
     public function register(Application $app)
     {
@@ -49,21 +45,43 @@ class CorsServiceProvider implements ServiceProviderInterface
         $app["cors.allowCredentials"] = null;
         $app["cors.exposeHeaders"] = null;
 
-        $app["cors"] = $app->protect(new Cors($app));
+        $app["allow"] = $app->protect(new Allow());
 
-        $app["cors-enabled"] = $app->protect(function ($subject, $options = []) use ($app) {
+        $app["options"] = $app->protect(function ($subject) use ($app) {
+            $optionsController = function () {
+                return Response::create("", 204);
+            };
+
             if ($subject instanceof Controller) {
-                $app->match($subject->getRoute()->getPath(), new OptionsController())
-                    ->after(new Cors($app, $options))
-                    ->method("OPTIONS");
-            } else if ($subject instanceof ControllerCollection) {
-                $subject->match("{path}", new OptionsController())
-                    ->assert("path", ".*")
-                    ->method("OPTIONS");
+                $optionsRoute = $app->match($subject->getRoute()->getPath(), $optionsController)
+                    ->method("OPTIONS")
+                    ->after($app["allow"]);
+            } else {
+                $optionsRoute = $subject->match("{path}", $optionsController)
+                    ->method("OPTIONS")
+                    ->after($app["allow"])
+                    ->assert("path", ".*");
             }
-            $subject->after(new Cors($app, $options));
+
+            return $optionsRoute;
+        });
+
+        $app["cors-enabled"] = $app->protect(function ($subject, $config = []) use ($app) {
+            $optionsController = $app["options"]($subject);
+            $cors = new Cors($app, $config);
+
+            if ($subject instanceof Controller) {
+                $optionsController->after($cors);
+            }
+
+            $subject->after($cors);
 
             return $subject;
         });
+
+        $app["cors"] = function () use ($app) {
+            $app["options"]($app);
+            return new Cors();
+        };
     }
 }
