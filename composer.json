@@ -21,6 +21,11 @@
             "JDesrosiers\\Silex\\Provider\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "JDesrosiers\\Silex\\Provider\\Tests\\": "tests/"
+        }
+    },
     "scripts": {
         "test": "vendor/bin/phpunit --colors"
     },
