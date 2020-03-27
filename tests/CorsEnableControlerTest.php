@@ -1,12 +1,12 @@
 <?php
 
-namespace JDesrosiers\Silex\Provider\Test;
+namespace JDesrosiers\Silex\Provider\Tests;
 
 use JDesrosiers\Silex\Provider\CorsServiceProvider;
 use Silex\Application;
 use Symfony\Component\HttpKernel\Client;
 
-class CorsEnableControllerCollectionTest extends \PHPUnit_Framework_TestCase
+class CorsEnableControllerTest extends \PHPUnit_Framework_TestCase
 {
     protected $client;
 
@@ -16,11 +16,10 @@ class CorsEnableControllerCollectionTest extends \PHPUnit_Framework_TestCase
         $app["debug"] = true;
         $app->register(new CorsServiceProvider());
 
-        $controllers = $app["controllers_factory"];
-        $controllers->get("/", function () {
+        $controller = $app->get("/foo", function () {
             return "foo";
         });
-        $app->mount("/foo", $app["cors-enabled"]($controllers));
+        $app["cors-enabled"]($controller);
 
         $app->get("/bar", function () {
             return "bar";
@@ -31,7 +30,7 @@ class CorsEnableControllerCollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testEnabledPreflight()
     {
-        $this->client->request("OPTIONS", "/foo/");
+        $this->client->request("OPTIONS", "/foo");
         $response = $this->client->getResponse();
 
         $this->assertTrue($response->isEmpty());
@@ -48,7 +47,7 @@ class CorsEnableControllerCollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testEnabledController()
     {
-        $this->client->request("GET", "/foo/");
+        $this->client->request("GET", "/foo");
         $response = $this->client->getResponse();
 
         $this->assertTrue($response->isOk());
