@@ -1,6 +1,6 @@
 <?php
 
-namespace JDesrosiers\Silex\Provider\Test;
+namespace JDesrosiers\Silex\Provider\Tests;
 
 use JDesrosiers\Silex\Provider\CorsServiceProvider;
 use Silex\Application;
