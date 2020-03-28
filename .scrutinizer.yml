@@ -7,6 +7,9 @@ checks:
         duplication: true
 
 build:
+    environment:
+        php:
+            version: 7.2.13
     tests:
         override:
             -
